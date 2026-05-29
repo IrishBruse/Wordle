@@ -13,6 +13,8 @@
   --tile-gap: 5px;
   --key-height: 58px;
   --font-game: "Helvetica Neue", Arial, sans-serif;
+  --tile-pop-in-ms: 150ms;
+  --tile-flip-ms: 650ms;
 }
 
 * {
@@ -60,46 +62,44 @@ a {
   line-height: 1.4;
 }
 
-.level-list {
+.level-box-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--tile-gap);
 }
 
-.level-card {
+.level-box {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 1rem 1.25rem;
-  border: 1px solid var(--color-tile-border);
+  align-items: center;
+  justify-content: center;
+  width: var(--tile-size);
+  height: var(--tile-size);
+  border: 2px solid var(--color-tile-border);
   border-radius: 4px;
+  background: transparent;
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 1.5rem;
+  font-weight: 700;
   text-decoration: none;
-  text-align: left;
-  transition: background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
 }
 
-.level-card:hover {
+.level-box:hover {
+  border-color: #565758;
   background: #1a1a1b;
 }
 
-.level-number {
-  font-size: 0.75rem;
-  color: #818384;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.level-name {
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.level-desc {
-  font-size: 0.875rem;
-  color: #a0a0a0;
+.level-box-locked {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
 }
 
 /* Game shell */
@@ -109,7 +109,8 @@ a {
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  padding: 0 0.5rem 1.5rem;
+  min-height: 100dvh;
+  padding: 0 0.5rem;
 }
 
 .game-header {
@@ -261,7 +262,7 @@ a {
 .tile-tbd .tile-back {
   background: transparent;
   border-color: #565758;
-  animation: pop-in 0.08s ease;
+  animation: pop-in var(--tile-pop-in-ms) ease;
 }
 
 .tile-correct .tile-front,
@@ -286,7 +287,7 @@ a {
 }
 
 .tile-flip .tile-inner {
-  animation: flip 0.5s ease forwards;
+  animation: flip var(--tile-flip-ms, 650ms) ease forwards;
 }
 
 @keyframes pop-in {
@@ -311,7 +312,7 @@ a {
 }
 
 .tile-flip .tile-front {
-  animation: hide-front 0.5s ease forwards;
+  animation: hide-front var(--tile-flip-ms, 650ms) ease forwards;
 }
 
 @keyframes hide-front {
@@ -328,7 +329,7 @@ a {
 
 .tile-flip .tile-back {
   transform: rotateX(180deg);
-  animation: show-back 0.5s ease forwards;
+  animation: show-back var(--tile-flip-ms, 650ms) ease forwards;
 }
 
 @keyframes show-back {
@@ -351,6 +352,9 @@ a {
   gap: 8px;
   width: 100%;
   max-width: 500px;
+  margin-top: auto;
+  flex-shrink: 0;
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
   user-select: none;
 }
 
@@ -390,6 +394,11 @@ a {
   font-size: 0.75rem;
 }
 
+.key-mode {
+  font-size: 0.6875rem;
+  text-transform: none;
+}
+
 .key-icon {
   width: 24px;
   height: 24px;
@@ -414,13 +423,20 @@ a {
 /* End state */
 
 .game-end {
-  margin-top: 1.5rem;
+  margin: 1rem 0 0.5rem;
   text-align: center;
 }
 
 .game-end p {
   margin: 0 0 1rem;
   font-size: 1.125rem;
+}
+
+.game-end-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
 }
 
 .btn-primary {
@@ -437,6 +453,23 @@ a {
 
 .btn-primary:hover {
   filter: brightness(1.08);
+}
+
+a.btn-primary {
+  display: inline-block;
+  text-decoration: none;
+  line-height: 1.25;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--color-tile-border);
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background: #1a1a1b;
+  filter: none;
 }
 
 @media (max-width: 400px) {

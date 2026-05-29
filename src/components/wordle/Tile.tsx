@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+import { TILE_FLIP_MS } from "#/game/timing";
 import type { LetterState } from "#/game/types";
 
 type TileProps = {
@@ -16,10 +18,17 @@ const stateClass: Record<LetterState, string> = {
 };
 
 export function Tile({ letter, state, animate, delayMs = 0 }: TileProps) {
+	const flipStyle = animate
+		? ({
+				animationDelay: `${delayMs}ms`,
+				"--tile-flip-ms": `${TILE_FLIP_MS}ms`,
+			} as CSSProperties)
+		: undefined;
+
 	return (
 		<div
 			className={`tile ${stateClass[state]}${animate ? " tile-flip" : ""}`}
-			style={animate ? { animationDelay: `${delayMs}ms` } : undefined}
+			style={flipStyle}
 			data-state={state}
 		>
 			<div className="tile-inner">

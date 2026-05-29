@@ -28,6 +28,18 @@ export function evaluateGuess(guess: string, answer: string): LetterState[] {
 	return result;
 }
 
+/** Level 2: green/yellow meanings are swapped. */
+export function evaluateGuessInvertedColors(
+	guess: string,
+	answer: string,
+): LetterState[] {
+	return evaluateGuess(guess, answer).map((state) => {
+		if (state === "correct") return "present";
+		if (state === "present") return "correct";
+		return state;
+	});
+}
+
 const STATE_RANK: Record<LetterState, number> = {
 	empty: 0,
 	tbd: 0,

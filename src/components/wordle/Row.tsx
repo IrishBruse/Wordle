@@ -1,3 +1,4 @@
+import { TILE_FLIP_STAGGER_MS } from "#/game/timing";
 import type { TileData } from "#/game/types";
 import { Tile } from "./Tile";
 
@@ -16,7 +17,7 @@ export function Row({ tiles, shake, reveal }: RowProps) {
 					letter={tile.letter}
 					state={tile.state}
 					animate={reveal && tile.state !== "empty" && tile.state !== "tbd"}
-					delayMs={index * 400}
+					delayMs={index * TILE_FLIP_STAGGER_MS}
 				/>
 			))}
 		</div>

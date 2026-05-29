@@ -1,5 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { getNextLevel } from "#/game/levels";
+import { isLevelUnlocked, unlockLevel } from "#/game/progress";
 import type { LevelConfig } from "#/game/types";
 import { useWordleGame } from "#/game/useWordleGame";
 import { Board } from "./Board";
@@ -25,6 +27,18 @@ export function Game({ level }: GameProps) {
 	} = useWordleGame(level);
 
 	const [shakeRow, setShakeRow] = useState<number | null>(null);
+	const unlockedNextRef = useRef(false);
+	const nextLevel = getNextLevel(level.id);
+
+	useEffect(() => {
+		if (status !== "won") {
+			unlockedNextRef.current = false;
+			return;
+		}
+		if (unlockedNextRef.current || !nextLevel) return;
+		unlockedNextRef.current = true;
+		unlockLevel(nextLevel.id);
+	}, [status, nextLevel]);
 
 	useEffect(() => {
 		if (
@@ -82,11 +96,9 @@ export function Game({ level }: GameProps) {
 		<div className="game">
 			<header className="game-header">
 				<Link to="/" className="game-back">
-					Levels
+					Home
 				</Link>
-				<h1 className="game-title">
-					Level {level.id}: {level.name}
-				</h1>
+				<h1 className="game-title">Wordle</h1>
 				<button type="button" className="game-restart" onClick={restart}>
 					New
 				</button>
@@ -99,11 +111,6 @@ export function Game({ level }: GameProps) {
 				revealingRow={revealingRow}
 				shakeRow={shakeRow}
 			/>
-			<Keyboard
-				keyStates={keyboardState}
-				onKey={handleKey}
-				disabled={disabled}
-			/>
 			{status !== "playing" ? (
 				<div className="game-end">
 					<p>
@@ -111,11 +118,29 @@ export function Game({ level }: GameProps) {
 							? `You got it in ${currentRow + 1}!`
 							: "Better luck next time."}
 					</p>
-					<button type="button" className="btn-primary" onClick={restart}>
-						Play again
-					</button>
+					<div className="game-end-actions">
+						<button type="button" className="btn-primary" onClick={restart}>
+							Play again
+						</button>
+						{status === "won" &&
+						nextLevel &&
+						isLevelUnlocked(nextLevel.id) ? (
+							<Link
+								to="/play/$levelId"
+								params={{ levelId: String(nextLevel.id) }}
+								className="btn-primary btn-secondary"
+							>
+								Continue
+							</Link>
+						) : null}
+					</div>
 				</div>
 			) : null}
+			<Keyboard
+				keyStates={keyboardState}
+				onKey={handleKey}
+				disabled={disabled}
+			/>
 		</div>
 	);
 }

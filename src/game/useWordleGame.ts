@@ -7,6 +7,7 @@ import type {
 	LevelConfig,
 	TileData,
 } from "./types";
+import { rowRevealDurationMs } from "./timing";
 import { getWordLists } from "./words";
 
 function emptyRow(length: number): TileData[] {
@@ -134,7 +135,7 @@ export function useWordleGame(level: LevelConfig) {
 			return next;
 		});
 
-		const revealMs = level.wordLength * 400 + 250;
+		const revealMs = rowRevealDurationMs(level.wordLength);
 		window.setTimeout(() => {
 			setRevealingRow(null);
 			const won = guess === answer;

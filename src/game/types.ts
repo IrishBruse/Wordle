@@ -19,7 +19,7 @@ export type LevelConfig = {
 	description: string;
 	wordLength: number;
 	maxGuesses: number;
-	/** Pick the secret word for this run. Override for troll levels later. */
+	/** Pick the secret word for this run. Override per level. */
 	pickAnswer: (words: string[]) => string;
 	/** Score a guess against the answer. Override for variant rules later. */
 	evaluateGuess: (guess: string, answer: string) => LetterState[];
