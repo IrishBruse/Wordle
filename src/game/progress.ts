@@ -1,10 +1,10 @@
 const STORAGE_KEY = "wordle-max-unlocked-level";
 
 function readMaxUnlocked(): number {
-	if (typeof window === "undefined") return 1;
+	if (typeof window === "undefined") return 0;
 	const raw = window.localStorage.getItem(STORAGE_KEY);
-	const parsed = raw ? Number.parseInt(raw, 10) : 1;
-	if (!Number.isFinite(parsed) || parsed < 1) return 1;
+	const parsed = raw ? Number.parseInt(raw, 10) : 0;
+	if (!Number.isFinite(parsed) || parsed < 0) return 0;
 	return parsed;
 }
 
@@ -13,11 +13,12 @@ export function getMaxUnlockedLevel(): number {
 }
 
 export function isLevelUnlocked(levelId: number): boolean {
+	if (levelId === 0) return true;
 	return levelId <= readMaxUnlocked();
 }
 
 export function hasFinishedFirstPuzzle(): boolean {
-	return readMaxUnlocked() > 1;
+	return readMaxUnlocked() > 0;
 }
 
 const PROGRESS_EVENT = "wordle-progress";

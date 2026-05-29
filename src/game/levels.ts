@@ -8,7 +8,7 @@ import { MAX_GUESSES, WORD_LENGTH } from "./types";
 
 export const LEVELS: LevelConfig[] = [
 	{
-		id: 1,
+		id: 0,
 		name: "Classic",
 		description: "Standard Wordle. Five letters, six guesses.",
 		wordLength: WORD_LENGTH,
@@ -17,7 +17,7 @@ export const LEVELS: LevelConfig[] = [
 		evaluateGuess: classicEvaluate,
 	},
 	{
-		id: 2,
+		id: 1,
 		name: "Double Agent",
 		description: "Five letters, six guesses.",
 		wordLength: WORD_LENGTH,
@@ -26,6 +26,14 @@ export const LEVELS: LevelConfig[] = [
 		evaluateGuess: evaluateGuessInvertedColors,
 	},
 ];
+
+export function getTutorialLevel(): LevelConfig {
+	return LEVELS[0];
+}
+
+export function getNumberedLevels(): LevelConfig[] {
+	return LEVELS.filter((level) => level.id > 0);
+}
 
 export function getLevel(id: number): LevelConfig | undefined {
 	return LEVELS.find((level) => level.id === id);

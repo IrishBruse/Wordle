@@ -7,7 +7,11 @@ import type {
 	LevelConfig,
 	TileData,
 } from "./types";
-import { getOrCreateLevelSeed, rollLevelSeed } from "./seed";
+import {
+	SSR_FALLBACK_SEED,
+	getOrCreateLevelSeed,
+	rollLevelSeed,
+} from "./seed";
 import { rowRevealDurationMs } from "./timing";
 import { getWordLists } from "./words";
 
@@ -25,7 +29,7 @@ export function useWordleGame(level: LevelConfig) {
 	const [allowed] = useState(() => ALLOWED_WORDS);
 	const [answers] = useState(() => ANSWER_POOL);
 	const [answer, setAnswer] = useState("");
-	const [seed, setSeed] = useState(() => getOrCreateLevelSeed(level.id));
+	const [seed, setSeed] = useState(SSR_FALLBACK_SEED);
 	const [board, setBoard] = useState<TileData[][]>(() =>
 		createBoard(level.maxGuesses, level.wordLength),
 	);

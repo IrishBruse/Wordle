@@ -9,48 +9,72 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PlayRouteImport } from './routes/play'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlayIndexRouteImport } from './routes/play.index'
 import { Route as PlayLevelIdRouteImport } from './routes/play.$levelId'
 
+const PlayRoute = PlayRouteImport.update({
+  id: '/play',
+  path: '/play',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlayIndexRoute = PlayIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PlayRoute,
+} as any)
 const PlayLevelIdRoute = PlayLevelIdRouteImport.update({
-  id: '/play/$levelId',
-  path: '/play/$levelId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$levelId',
+  path: '/$levelId',
+  getParentRoute: () => PlayRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/play': typeof PlayRouteWithChildren
   '/play/$levelId': typeof PlayLevelIdRoute
+  '/play/': typeof PlayIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/play/$levelId': typeof PlayLevelIdRoute
+  '/play': typeof PlayIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/play': typeof PlayRouteWithChildren
   '/play/$levelId': typeof PlayLevelIdRoute
+  '/play/': typeof PlayIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/play/$levelId'
+  fullPaths: '/' | '/play' | '/play/$levelId' | '/play/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/play/$levelId'
-  id: '__root__' | '/' | '/play/$levelId'
+  to: '/' | '/play/$levelId' | '/play'
+  id: '__root__' | '/' | '/play' | '/play/$levelId' | '/play/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PlayLevelIdRoute: typeof PlayLevelIdRoute
+  PlayRoute: typeof PlayRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/play': {
+      id: '/play'
+      path: '/play'
+      fullPath: '/play'
+      preLoaderRoute: typeof PlayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -58,19 +82,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/play/': {
+      id: '/play/'
+      path: '/'
+      fullPath: '/play/'
+      preLoaderRoute: typeof PlayIndexRouteImport
+      parentRoute: typeof PlayRoute
+    }
     '/play/$levelId': {
       id: '/play/$levelId'
-      path: '/play/$levelId'
+      path: '/$levelId'
       fullPath: '/play/$levelId'
       preLoaderRoute: typeof PlayLevelIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof PlayRoute
     }
   }
 }
 
+interface PlayRouteChildren {
+  PlayLevelIdRoute: typeof PlayLevelIdRoute
+  PlayIndexRoute: typeof PlayIndexRoute
+}
+
+const PlayRouteChildren: PlayRouteChildren = {
+  PlayLevelIdRoute: PlayLevelIdRoute,
+  PlayIndexRoute: PlayIndexRoute,
+}
+
+const PlayRouteWithChildren = PlayRoute._addFileChildren(PlayRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PlayLevelIdRoute: PlayLevelIdRoute,
+  PlayRoute: PlayRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

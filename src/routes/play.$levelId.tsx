@@ -21,8 +21,12 @@ function PlayLevel() {
 		);
 	}
 
+	if (id < 1) {
+		return <Navigate to="/play" />;
+	}
+
 	if (!isLevelUnlocked(id)) {
-		return <Navigate to="/play/$levelId" params={{ levelId: "1" }} />;
+		return <Navigate to="/play" />;
 	}
 
 	return <Game level={level} />;

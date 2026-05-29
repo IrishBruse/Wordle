@@ -16,7 +16,7 @@ function normalizeBase(basePath) {
 }
 
 const base = normalizeBase(process.env.VITE_BASE_PATH);
-const routes = [`${base}/`, `${base}/play/1`];
+const routes = [`${base}/`, `${base}/play`, `${base}/play/1`];
 
 async function startPreviewServer() {
 	const mod = await import(pathToFileURL(serverFile).href);

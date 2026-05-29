@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { LEVELS } from "#/game/levels";
+import { getNumberedLevels } from "#/game/levels";
 import { isLevelUnlocked } from "#/game/progress";
 import { useHasFinishedFirstPuzzle } from "#/game/useProgress";
 
@@ -14,7 +14,7 @@ function Home() {
 			<p className="home-subtitle">Guess the hidden word in six tries.</p>
 			{hasFinishedFirst ? (
 				<ul className="level-box-list">
-					{LEVELS.map((level) => {
+					{getNumberedLevels().map((level) => {
 						const unlocked = isLevelUnlocked(level.id);
 						if (unlocked) {
 							return (
@@ -43,11 +43,7 @@ function Home() {
 					})}
 				</ul>
 			) : (
-				<Link
-					to="/play/$levelId"
-					params={{ levelId: "1" }}
-					className="btn-primary"
-				>
+				<Link to="/play" className="btn-primary">
 					Play
 				</Link>
 			)}

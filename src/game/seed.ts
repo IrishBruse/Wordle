@@ -1,6 +1,9 @@
 import type { LevelId } from "./types";
 
 const STORAGE_PREFIX = "wordle-seed-";
+
+/** Stable initial seed for SSR and the first client render (before localStorage sync). */
+export const SSR_FALLBACK_SEED = 1;
 const BASE62 =
 	"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -69,7 +72,7 @@ export function pickAnswerForSeed(words: string[], seed: number): string {
 }
 
 export function getOrCreateLevelSeed(levelId: LevelId): number {
-	if (typeof window === "undefined") return 1;
+	if (typeof window === "undefined") return SSR_FALLBACK_SEED;
 	const raw = window.localStorage.getItem(storageKey(levelId));
 	if (!raw) {
 		const seed = randomSeed();
@@ -87,7 +90,7 @@ export function getOrCreateLevelSeed(levelId: LevelId): number {
 }
 
 export function rollLevelSeed(levelId: LevelId): number {
-	if (typeof window === "undefined") return 1;
+	if (typeof window === "undefined") return SSR_FALLBACK_SEED;
 	const seed = randomSeed();
 	writeStoredSeed(levelId, seed);
 	return seed;
