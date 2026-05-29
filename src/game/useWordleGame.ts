@@ -7,6 +7,7 @@ import type {
 	LevelConfig,
 	TileData,
 } from "./types";
+import { getOrCreateLevelSeed, rollLevelSeed } from "./seed";
 import { rowRevealDurationMs } from "./timing";
 import { getWordLists } from "./words";
 
@@ -24,6 +25,7 @@ export function useWordleGame(level: LevelConfig) {
 	const [allowed] = useState(() => ALLOWED_WORDS);
 	const [answers] = useState(() => ANSWER_POOL);
 	const [answer, setAnswer] = useState("");
+	const [seed, setSeed] = useState(() => getOrCreateLevelSeed(level.id));
 	const [board, setBoard] = useState<TileData[][]>(() =>
 		createBoard(level.maxGuesses, level.wordLength),
 	);
@@ -33,8 +35,8 @@ export function useWordleGame(level: LevelConfig) {
 	const [revealingRow, setRevealingRow] = useState<number | null>(null);
 
 	const initGame = useCallback(
-		(pool: string[]) => {
-			const secret = level.pickAnswer(pool);
+		(pool: string[], gameSeed: number) => {
+			const secret = level.pickAnswer(pool, gameSeed);
 			setAnswer(secret);
 			setBoard(createBoard(level.maxGuesses, level.wordLength));
 			setCurrentRow(0);
@@ -46,8 +48,10 @@ export function useWordleGame(level: LevelConfig) {
 	);
 
 	useEffect(() => {
-		initGame(answers);
-	}, [initGame, answers]);
+		const gameSeed = getOrCreateLevelSeed(level.id);
+		setSeed(gameSeed);
+		initGame(answers, gameSeed);
+	}, [initGame, answers, level.id]);
 
 	const currentGuess = useMemo(() => {
 		if (currentRow >= board.length) return "";
@@ -146,6 +150,7 @@ export function useWordleGame(level: LevelConfig) {
 			}
 			if (rowIndex + 1 >= level.maxGuesses) {
 				setStatus("lost");
+				setSeed(rollLevelSeed(level.id));
 				showMessage({ type: "lost", answer });
 				return;
 			}
@@ -164,8 +169,10 @@ export function useWordleGame(level: LevelConfig) {
 
 	const restart = useCallback(() => {
 		if (answers.length === 0) return;
-		initGame(answers);
-	}, [answers, initGame]);
+		const gameSeed = status === "lost" ? seed : rollLevelSeed(level.id);
+		if (status !== "lost") setSeed(gameSeed);
+		initGame(answers, gameSeed);
+	}, [answers, initGame, seed, status]);
 
 	return {
 		board,
@@ -174,6 +181,7 @@ export function useWordleGame(level: LevelConfig) {
 		message,
 		revealingRow,
 		keyboardState,
+		seed,
 		addLetter,
 		removeLetter,
 		submitGuess,

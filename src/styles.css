@@ -153,6 +153,15 @@ a {
   white-space: nowrap;
 }
 
+.game-seed {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04rem;
+  color: #818384;
+  text-align: center;
+}
+
 .message-slot {
   height: 32px;
   display: flex;
@@ -376,7 +385,7 @@ a {
   background: var(--color-key);
   color: var(--color-key-text);
   font-family: inherit;
-  font-size: 0.8125rem;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   text-transform: uppercase;
@@ -391,11 +400,11 @@ a {
   min-width: 65px;
   flex-grow: 1;
   max-width: 106px;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 }
 
 .key-mode {
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   text-transform: none;
 }
 
@@ -480,7 +489,7 @@ a.btn-primary {
 
   .key {
     min-width: 36px;
-    font-size: 0.75rem;
+    font-size: 0.875rem;
   }
 
   .key-wide {

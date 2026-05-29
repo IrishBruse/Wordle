@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getNextLevel } from "#/game/levels";
+import { encodeSeed } from "#/game/seed";
 import { isLevelUnlocked, unlockLevel } from "#/game/progress";
 import type { LevelConfig } from "#/game/types";
 import { useWordleGame } from "#/game/useWordleGame";
@@ -20,6 +21,7 @@ export function Game({ level }: GameProps) {
 		message,
 		revealingRow,
 		keyboardState,
+		seed,
 		addLetter,
 		removeLetter,
 		submitGuess,
@@ -103,6 +105,9 @@ export function Game({ level }: GameProps) {
 					New
 				</button>
 			</header>
+			<p className="game-seed" aria-live="polite">
+				Seed: {encodeSeed(seed)}
+			</p>
 
 			<Message message={message} />
 

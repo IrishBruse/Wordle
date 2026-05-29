@@ -20,7 +20,7 @@ export type LevelConfig = {
 	wordLength: number;
 	maxGuesses: number;
 	/** Pick the secret word for this run. Override per level. */
-	pickAnswer: (words: string[]) => string;
+	pickAnswer: (words: string[], seed: number) => string;
 	/** Score a guess against the answer. Override for variant rules later. */
 	evaluateGuess: (guess: string, answer: string) => LetterState[];
 	/** Optional filter on whether a guess is allowed. */

@@ -2,13 +2,9 @@ import {
 	evaluateGuess as classicEvaluate,
 	evaluateGuessInvertedColors,
 } from "./evaluate";
+import { pickAnswerForSeed } from "./seed";
 import type { LevelConfig } from "./types";
 import { MAX_GUESSES, WORD_LENGTH } from "./types";
-
-function pickRandom(words: string[]): string {
-	const index = Math.floor(Math.random() * words.length);
-	return words[index] ?? "crane";
-}
 
 export const LEVELS: LevelConfig[] = [
 	{
@@ -17,7 +13,7 @@ export const LEVELS: LevelConfig[] = [
 		description: "Standard Wordle. Five letters, six guesses.",
 		wordLength: WORD_LENGTH,
 		maxGuesses: MAX_GUESSES,
-		pickAnswer: pickRandom,
+		pickAnswer: pickAnswerForSeed,
 		evaluateGuess: classicEvaluate,
 	},
 	{
@@ -26,7 +22,7 @@ export const LEVELS: LevelConfig[] = [
 		description: "Five letters, six guesses.",
 		wordLength: WORD_LENGTH,
 		maxGuesses: MAX_GUESSES,
-		pickAnswer: pickRandom,
+		pickAnswer: pickAnswerForSeed,
 		evaluateGuess: evaluateGuessInvertedColors,
 	},
 ];
