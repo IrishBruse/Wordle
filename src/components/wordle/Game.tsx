@@ -12,7 +12,6 @@ type GameProps = {
 
 export function Game({ level }: GameProps) {
 	const {
-		wordsReady,
 		board,
 		currentRow,
 		status,
@@ -77,7 +76,7 @@ export function Game({ level }: GameProps) {
 		return () => window.removeEventListener("keydown", onKeyDown);
 	}, [handleKey]);
 
-	const disabled = !wordsReady || status !== "playing" || revealingRow !== null;
+	const disabled = status !== "playing" || revealingRow !== null;
 
 	return (
 		<div className="game">
@@ -95,34 +94,28 @@ export function Game({ level }: GameProps) {
 
 			<Message message={message} />
 
-			{!wordsReady ? (
-				<p className="loading">Loading words...</p>
-			) : (
-				<>
-          <Board
-            rows={board}
-            revealingRow={revealingRow}
-            shakeRow={shakeRow}
-          />
-					<Keyboard
-						keyStates={keyboardState}
-						onKey={handleKey}
-						disabled={disabled}
-					/>
-					{status !== "playing" ? (
-						<div className="game-end">
-							<p>
-								{status === "won"
-									? `You got it in ${currentRow + 1}!`
-									: "Better luck next time."}
-							</p>
-							<button type="button" className="btn-primary" onClick={restart}>
-								Play again
-							</button>
-						</div>
-					) : null}
-				</>
-			)}
+			<Board
+				rows={board}
+				revealingRow={revealingRow}
+				shakeRow={shakeRow}
+			/>
+			<Keyboard
+				keyStates={keyboardState}
+				onKey={handleKey}
+				disabled={disabled}
+			/>
+			{status !== "playing" ? (
+				<div className="game-end">
+					<p>
+						{status === "won"
+							? `You got it in ${currentRow + 1}!`
+							: "Better luck next time."}
+					</p>
+					<button type="button" className="btn-primary" onClick={restart}>
+						Play again
+					</button>
+				</div>
+			) : null}
 		</div>
 	);
 }

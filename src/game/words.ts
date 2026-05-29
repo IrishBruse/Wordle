@@ -1,28 +1,20 @@
+import { WORD_LIST } from "./word-list";
+
+const ANSWER_POOL_SIZE = 2315;
+
 let allowedWords: Set<string> | null = null;
 let answerPool: string[] | null = null;
 
-function normalize(word: string): string {
-	return word.trim().toLowerCase();
-}
-
-export async function loadWordLists(): Promise<{
+export function getWordLists(): {
 	allowed: Set<string>;
 	answers: string[];
-}> {
+} {
 	if (allowedWords && answerPool) {
 		return { allowed: allowedWords, answers: answerPool };
 	}
 
-	const response = await fetch("/words.txt");
-	const text = await response.text();
-	const words = text
-		.split("\n")
-		.map(normalize)
-		.filter((word) => word.length === 5);
-
-	allowedWords = new Set(words);
-	// First ~2.3k entries are roughly "common" in many Wordle lists; good enough for answers.
-	answerPool = words.slice(0, 2315);
+	allowedWords = new Set(WORD_LIST);
+	answerPool = WORD_LIST.slice(0, ANSWER_POOL_SIZE);
 
 	return { allowed: allowedWords, answers: answerPool };
 }

@@ -7,7 +7,7 @@ import type {
 	LevelConfig,
 	TileData,
 } from "./types";
-import { loadWordLists } from "./words";
+import { getWordLists } from "./words";
 
 function emptyRow(length: number): TileData[] {
 	return Array.from({ length }, () => ({ letter: "", state: "empty" }));
@@ -17,10 +17,11 @@ function createBoard(rows: number, cols: number): TileData[][] {
 	return Array.from({ length: rows }, () => emptyRow(cols));
 }
 
+const { allowed: ALLOWED_WORDS, answers: ANSWER_POOL } = getWordLists();
+
 export function useWordleGame(level: LevelConfig) {
-	const [wordsReady, setWordsReady] = useState(false);
-	const [allowed, setAllowed] = useState<Set<string>>(new Set());
-	const [answers, setAnswers] = useState<string[]>([]);
+	const [allowed] = useState(() => ALLOWED_WORDS);
+	const [answers] = useState(() => ANSWER_POOL);
 	const [answer, setAnswer] = useState("");
 	const [board, setBoard] = useState<TileData[][]>(() =>
 		createBoard(level.maxGuesses, level.wordLength),
@@ -44,18 +45,8 @@ export function useWordleGame(level: LevelConfig) {
 	);
 
 	useEffect(() => {
-		let cancelled = false;
-		loadWordLists().then(({ allowed: allowedSet, answers: answerList }) => {
-			if (cancelled) return;
-			setAllowed(allowedSet);
-			setAnswers(answerList);
-			initGame(answerList);
-			setWordsReady(true);
-		});
-		return () => {
-			cancelled = true;
-		};
-	}, [initGame]);
+		initGame(answers);
+	}, [initGame, answers]);
 
 	const currentGuess = useMemo(() => {
 		if (currentRow >= board.length) return "";
@@ -176,7 +167,6 @@ export function useWordleGame(level: LevelConfig) {
 	}, [answers, initGame]);
 
 	return {
-		wordsReady,
 		board,
 		currentRow,
 		status,
