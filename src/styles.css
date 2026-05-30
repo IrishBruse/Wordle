@@ -124,6 +124,82 @@ a {
   filter: brightness(1.08);
 }
 
+.home-debug {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed #3a3a3c;
+  text-align: left;
+}
+
+.home-debug-title {
+  margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #818384;
+}
+
+.home-debug-state {
+  margin: 0 0 1rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: #a0a0a0;
+  word-break: break-word;
+}
+
+.home-debug-group {
+  margin-bottom: 1rem;
+}
+
+.home-debug-group:last-child {
+  margin-bottom: 0;
+}
+
+.home-debug-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  color: #818384;
+}
+
+.home-debug-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.home-debug-level-set {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  margin-bottom: 0.35rem;
+}
+
+.home-debug-level-id {
+  min-width: 1.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #a0a0a0;
+}
+
+.home-debug-btn {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #3a3a3c;
+  border-radius: 4px;
+  background: #1a1a1b;
+  color: #d7dadc;
+  font-family: inherit;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.home-debug-btn:hover {
+  border-color: #565758;
+  background: #252526;
+}
+
 /* Game shell */
 
 .game {

@@ -79,6 +79,67 @@ export function unlockLevel(levelId: number): void {
 	notifyProgress();
 }
 
+/** Mark level 0 won (green) and unlock level 1, as if the tutorial was completed. */
+export function debugFinishLevelZero(): void {
+	markLevelWon(0, false);
+	unlockLevel(1);
+}
+
+export function setMaxUnlockedLevel(levelId: number): void {
+	if (typeof window === "undefined") return;
+	if (!Number.isFinite(levelId) || levelId < 0) return;
+	if (levelId === 0) {
+		window.localStorage.removeItem(STORAGE_KEY);
+	} else {
+		window.localStorage.setItem(STORAGE_KEY, String(levelId));
+	}
+	notifyProgress();
+}
+
+export function setLevelCompletion(
+	levelId: number,
+	status: LevelCompletionStatus | null,
+): void {
+	if (typeof window === "undefined") return;
+	const completions = readCompletions();
+	if (status === null) {
+		delete completions[levelId];
+	} else {
+		completions[levelId] = status;
+	}
+	writeCompletions(completions);
+	notifyProgress();
+}
+
+export function clearCompletions(): void {
+	if (typeof window === "undefined") return;
+	window.localStorage.removeItem(COMPLETIONS_KEY);
+	notifyProgress();
+}
+
+export function clearProgress(): void {
+	if (typeof window === "undefined") return;
+	window.localStorage.removeItem(STORAGE_KEY);
+	window.localStorage.removeItem(COMPLETIONS_KEY);
+	notifyProgress();
+}
+
+export function clearStoredSeeds(): void {
+	if (typeof window === "undefined") return;
+	const keys: string[] = [];
+	for (let i = 0; i < window.localStorage.length; i++) {
+		const key = window.localStorage.key(i);
+		if (key?.startsWith("wordle-seed-")) keys.push(key);
+	}
+	for (const key of keys) window.localStorage.removeItem(key);
+	notifyProgress();
+}
+
+export function clearAllGameStorage(): void {
+	clearProgress();
+	clearStoredSeeds();
+}
+
 export function subscribeProgress(onChange: () => void): () => void {
 	if (typeof window === "undefined") return () => {};
 	const handler = () => onChange();

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { HomeDebugPanel } from "#/components/wordle/HomeDebugPanel";
 import {
 	isLevelUnlocked,
 	type LevelCompletionStatus,
@@ -79,6 +80,7 @@ function Home() {
 					Play
 				</Link>
 			)}
+			<HomeDebugPanel />
 		</div>
 	);
 }

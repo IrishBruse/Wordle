@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import {
 	getLevelCompletion,
+	getMaxUnlockedLevel,
 	hasFinishedFirstPuzzle,
 	subscribeProgress,
 	type LevelCompletionStatus,
@@ -21,5 +22,13 @@ export function useLevelCompletion(
 		subscribeProgress,
 		() => getLevelCompletion(levelId),
 		() => null,
+	);
+}
+
+export function useMaxUnlockedLevel(): number {
+	return useSyncExternalStore(
+		subscribeProgress,
+		getMaxUnlockedLevel,
+		() => 0,
 	);
 }
