@@ -14,6 +14,7 @@ import {
 	subscribeProgress,
 } from "#/game/progress";
 import { answerForEncodedSeed } from "#/game/seed";
+import { symbolsForEncodedSeed } from "#/game/symbols";
 import { useMaxUnlockedLevel } from "#/game/useProgress";
 import { getWordLists } from "#/game/words";
 import { getNumberedLevels } from "#/levels";
@@ -40,6 +41,9 @@ function SeedLookup() {
 		if (levelId === "6") {
 			return gibberishForEncodedSeed(seedCode, allowed);
 		}
+		if (levelId === "7") {
+			return symbolsForEncodedSeed(seedCode);
+		}
 		return answerForEncodedSeed(seedCode, answers);
 	}, [allowed, answers, levelId, seedCode]);
 
@@ -49,7 +53,7 @@ function SeedLookup() {
 	} else if (lookup === null) {
 		result = "Invalid seed";
 	} else {
-		result = lookup.toUpperCase();
+		result = levelId === "7" ? lookup : lookup.toUpperCase();
 	}
 
 	return (
@@ -65,6 +69,7 @@ function SeedLookup() {
 			>
 				<option value="0">0-3 (word pool)</option>
 				<option value="6">6 (gibberish)</option>
+				<option value="7">7 (symbols)</option>
 			</select>
 			<label className="home-debug-label" htmlFor="home-debug-seed">
 				Seed to answer

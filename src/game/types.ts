@@ -43,6 +43,8 @@ export type LevelConfig = {
 	conveyorBelt?: boolean;
 	/** Tiles and keyboard stay gray until the winning guess (all green). */
 	blindFeedback?: boolean;
+	/** Show 123 / ABC toggle with numbers and punctuation keys. */
+	symbolsKeyboard?: boolean;
 };
 
 export type GameMessage =

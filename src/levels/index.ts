@@ -6,6 +6,7 @@ import { level3 } from "./3";
 import { level4 } from "./4";
 import { level5 } from "./5";
 import { level6 } from "./6";
+import { level7 } from "./7";
 
 export const LEVELS: LevelConfig[] = [
 	level0,
@@ -15,6 +16,7 @@ export const LEVELS: LevelConfig[] = [
 	level4,
 	level5,
 	level6,
+	level7,
 ];
 
 export function getTutorialLevel(): LevelConfig {

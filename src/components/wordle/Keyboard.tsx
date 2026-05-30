@@ -1,5 +1,6 @@
 import { Delete } from "lucide-react";
 import { useEffect, useState } from "react";
+import { SYMBOL_KEY_ROWS } from "#/game/symbols";
 import type { LetterState } from "#/game/types";
 
 const LETTER_ROWS = [
@@ -15,9 +16,9 @@ const LETTER_ROWS_WITH_SYMBOLS_TOGGLE = [
 ] as const;
 
 const SYMBOL_ROWS = [
-	["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"],
-	["-", "/", ":", ";", "(", ")", "$", "&", "@", '"'],
-	["ABC", ".", ",", "?", "!", "'", "ENTER", "BACK"],
+	SYMBOL_KEY_ROWS[0],
+	SYMBOL_KEY_ROWS[1],
+	["ABC", ...SYMBOL_KEY_ROWS[2], "ENTER", "BACK"],
 ] as const;
 
 const MODE_KEYS = new Set(["123", "ABC"]);

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { markLevelWon, unlockLevel } from "#/game/progress";
 import { encodeSeed } from "#/game/seed";
+import { isAllowedSymbolKey } from "#/game/symbols";
 import type { LevelConfig } from "#/game/types";
 import { useIsLevelUnlocked } from "#/game/useProgress";
 import { useWordleGame } from "#/game/useWordleGame";
@@ -112,11 +113,16 @@ export function Game({ level }: GameProps) {
 			if (/^[a-zA-Z]$/.test(key)) {
 				event.preventDefault();
 				handleKey(key.toUpperCase());
+				return;
+			}
+			if (level.symbolsKeyboard && isAllowedSymbolKey(key)) {
+				event.preventDefault();
+				handleKey(key);
 			}
 		};
 		window.addEventListener("keydown", onKeyDown);
 		return () => window.removeEventListener("keydown", onKeyDown);
-	}, [clearGuess, handleKey]);
+	}, [clearGuess, handleKey, level.symbolsKeyboard]);
 
 	const disabled = status !== "playing" || revealingRow !== null;
 
@@ -182,6 +188,7 @@ export function Game({ level }: GameProps) {
 				keyStates={keyboardState}
 				onKey={handleKey}
 				disabled={disabled}
+				symbolsView={level.symbolsKeyboard}
 			/>
 			<p className="game-seed" aria-live="polite">
 				Seed: {encodeSeed(seed)}
