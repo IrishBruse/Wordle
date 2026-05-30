@@ -8,4 +8,4 @@ Play at `/play/2` after completing Level 1. Layout matches Classic but introduce
   - **Green:** Letter is correct and in the exact position.
   - **Yellow:** Letter is in the word but in a different position.
   - **Gray:** Letter is not in the word.
-  - **Blue:** A completely random letter slot from the user's very first guess is permanently locked to Blue for the rest of the game, overriding its actual status (whether it is correct, misplaced, or incorrect).
+  - **Blue:** On the first guess, one random column is forced to Blue (establishing the herring letter). Every tile with that letter stays Blue for the rest of the run, on the board and keyboard. Other letters in that column use normal scoring.

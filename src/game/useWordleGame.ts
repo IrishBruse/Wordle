@@ -64,24 +64,58 @@ export function useWordleGame(level: LevelConfig) {
 			.toLowerCase();
 	}, [board, currentRow]);
 
+	const decoyLetter = useMemo(() => {
+		if (decoyColumn === null) return null;
+		return board[0][decoyColumn]?.letter ?? null;
+	}, [board, decoyColumn]);
+
 	const keyboardState = useMemo(() => {
 		const map = new Map<string, LetterState>();
+		const includeDecoyOnKeyboard =
+			decoyLetter !== null &&
+			revealingRow !== 0 &&
+			board[0].every(
+				(tile) =>
+					tile.letter !== "" && tile.state !== "empty" && tile.state !== "tbd",
+			);
+
 		for (let row = 0; row < currentRow; row++) {
 			const guess = board[row]
 				.map((tile) => tile.letter)
 				.join("")
 				.toLowerCase();
 			if (guess.length !== level.wordLength) continue;
-			const scores = level.evaluateGuess(guess, answer);
+			const trueScores = level.evaluateGuess(guess, answer);
 			for (let i = 0; i < level.wordLength; i++) {
 				const letter = board[row][i].letter;
 				if (!letter) continue;
 				const key = letter.toUpperCase();
-				map.set(key, mergeLetterStates(map.get(key), scores[i]));
+				let state = board[row][i].state;
+				if (
+					level.blueHerring &&
+					decoyColumn !== null &&
+					decoyLetter &&
+					i === decoyColumn &&
+					key !== decoyLetter
+				) {
+					state = trueScores[i];
+				}
+				map.set(key, mergeLetterStates(map.get(key), state));
 			}
 		}
+		if (includeDecoyOnKeyboard) {
+			map.set(decoyLetter, mergeLetterStates(map.get(decoyLetter), "decoy"));
+		}
 		return map;
-	}, [answer, board, currentRow, level]);
+	}, [
+		answer,
+		board,
+		currentRow,
+		decoyColumn,
+		decoyLetter,
+		level,
+		revealingRow,
+	]);
 
 	const showMessage = useCallback((next: GameMessage) => {
 		setMessage(next);
@@ -156,9 +190,22 @@ export function useWordleGame(level: LevelConfig) {
 			setDecoyColumn(column);
 		}
 
+		const herringLetter =
+			column !== null
+				? rowIndex === 0
+					? guess[column].toUpperCase()
+					: (board[0][column]?.letter ?? null)
+				: null;
+
 		const displayScores =
 			level.blueHerring && column !== null
-				? applyBlueHerring(trueScores, column)
+				? applyBlueHerring(
+						trueScores,
+						guess,
+						column,
+						herringLetter,
+						rowIndex,
+					)
 				: trueScores;
 
 		setRevealingRow(rowIndex);
@@ -193,6 +240,7 @@ export function useWordleGame(level: LevelConfig) {
 	}, [
 		answer,
 		allowed,
+		board,
 		currentGuess,
 		currentRow,
 		decoyColumn,

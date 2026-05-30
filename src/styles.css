@@ -114,17 +114,6 @@ a {
   filter: brightness(1.08);
 }
 
-.level-box-hint {
-  background: var(--color-present);
-  border-color: var(--color-present);
-}
-
-.level-box-hint:hover {
-  background: var(--color-present);
-  border-color: var(--color-present);
-  filter: brightness(1.08);
-}
-
 .home-debug {
   margin-top: 2.5rem;
   padding-top: 1.5rem;
@@ -578,6 +567,10 @@ a {
 
 .key-absent {
   background: var(--color-absent);
+}
+
+.key-decoy {
+  background: var(--color-decoy);
 }
 
 /* End state */

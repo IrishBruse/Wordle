@@ -33,7 +33,7 @@ export type LevelConfig = {
 	evaluateGuess: (guess: string, answer: string) => LetterState[];
 	/** Optional filter on whether a guess is allowed. */
 	isGuessValid?: (guess: string, allowedWords: Set<string>) => boolean;
-	/** One random column from the first guess stays blue (decoy) every row. */
+	/** First guess picks a herring letter (from one column) that stays blue every row. */
 	blueHerring?: boolean;
 };
 

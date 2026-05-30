@@ -61,15 +61,9 @@ describe("progress (browser)", () => {
 		expect(hasFinishedFirstPuzzle()).toBe(true);
 	});
 
-	it("markLevelWon records clean completion", () => {
-		markLevelWon(0, false);
+	it("markLevelWon records completion", () => {
+		markLevelWon(0);
 		expect(getLevelCompletion(0)).toBe("clean");
-	});
-
-	it("markLevelWon does not downgrade clean to hint", () => {
-		markLevelWon(1, false);
-		markLevelWon(1, true);
-		expect(getLevelCompletion(1)).toBe("clean");
 	});
 });
 

@@ -101,10 +101,7 @@ export function HomeDebugPanel() {
 							<DebugButton
 								onClick={() => setLevelCompletion(level.id, "clean")}
 							>
-								Green
-							</DebugButton>
-							<DebugButton onClick={() => setLevelCompletion(level.id, "hint")}>
-								Yellow
+								Done
 							</DebugButton>
 							<DebugButton onClick={() => setLevelCompletion(level.id, null)}>
 								Clear

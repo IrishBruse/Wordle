@@ -1,7 +1,7 @@
 const STORAGE_KEY = "wordle-max-unlocked-level";
 const COMPLETIONS_KEY = "wordle-level-completions";
 
-export type LevelCompletionStatus = "clean" | "hint";
+export type LevelCompletionStatus = "clean";
 
 function readMaxUnlocked(): number {
 	if (typeof window === "undefined") return 0;
@@ -35,7 +35,7 @@ function readCompletions(): Record<number, LevelCompletionStatus> {
 		for (const [key, value] of Object.entries(parsed)) {
 			const id = Number.parseInt(key, 10);
 			if (!Number.isFinite(id)) continue;
-			if (value === "clean" || value === "hint") out[id] = value;
+			if (value === "clean") out[id] = value;
 		}
 		return out;
 	} catch {
@@ -55,14 +55,10 @@ export function getLevelCompletion(
 	return readCompletions()[levelId] ?? null;
 }
 
-export function markLevelWon(levelId: number, usedHint: boolean): void {
+export function markLevelWon(levelId: number): void {
 	if (typeof window === "undefined") return;
 	const completions = readCompletions();
-	if (!usedHint) {
-		completions[levelId] = "clean";
-	} else if (completions[levelId] !== "clean") {
-		completions[levelId] = "hint";
-	}
+	completions[levelId] = "clean";
 	writeCompletions(completions);
 	notifyProgress();
 }
@@ -83,7 +79,7 @@ export function unlockLevel(levelId: number): void {
 
 /** Mark level 0 won (green) and unlock level 1, as if the tutorial was completed. */
 export function debugFinishLevelZero(): void {
-	markLevelWon(0, false);
+	markLevelWon(0);
 	unlockLevel(1);
 }
 

@@ -18,14 +18,37 @@ describe("level 2: The Blue Herring", () => {
 		);
 	});
 
-	it("locks one column to decoy from the first guess onward", () => {
+	it("locks the herring letter from the first guess onward", () => {
 		const answer = "crane";
 		const decoyColumn = 2;
 		const rows = simulatePlaythrough(level2, answer, ["stone", "crane"], {
 			fixedDecoyColumn: decoyColumn,
 		});
 		expect(rows[0][decoyColumn]).toBe("decoy");
-		expect(rows[1][decoyColumn]).toBe("decoy");
+		expect(rows[1][decoyColumn]).toBe("correct");
+	});
+
+	it("does not decoy a different letter in the herring column", () => {
+		const answer = "waver";
+		const decoyColumn = 3;
+		const rows = simulatePlaythrough(level2, answer, ["waver", "audio"], {
+			fixedDecoyColumn: decoyColumn,
+		});
+		expect(rows[0][decoyColumn]).toBe("decoy");
+		expect(rows[1][decoyColumn]).toBe("absent");
+	});
+
+	it("always shows the herring letter as decoy on every row", () => {
+		const answer = "waver";
+		const decoyColumn = 0;
+		const rows = simulatePlaythrough(
+			level2,
+			answer,
+			["waver", "audio", "lower"],
+			{ fixedDecoyColumn: decoyColumn },
+		);
+		expect(rows[0][0]).toBe("decoy");
+		expect(rows[2][2]).toBe("decoy");
 	});
 
 	it("overrides a would-be correct letter in the decoy column", () => {

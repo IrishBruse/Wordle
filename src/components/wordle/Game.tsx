@@ -52,12 +52,12 @@ export function Game({ level }: GameProps) {
 		}
 		if (!recordedWinRef.current) {
 			recordedWinRef.current = true;
-			markLevelWon(level.id, hintRevealed);
+			markLevelWon(level.id);
 		}
 		if (unlockedNextRef.current || !nextLevel) return;
 		unlockedNextRef.current = true;
 		unlockLevel(nextLevel.id);
-	}, [status, nextLevel, level.id, hintRevealed]);
+	}, [status, nextLevel, level.id]);
 
 	useEffect(() => {
 		if (

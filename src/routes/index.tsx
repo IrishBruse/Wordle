@@ -18,7 +18,6 @@ function levelBoxClass(
 	const classes = ["level-box"];
 	if (!unlocked) classes.push("level-box-locked");
 	if (completion === "clean") classes.push("level-box-complete");
-	if (completion === "hint") classes.push("level-box-hint");
 	return classes.join(" ");
 }
 
@@ -27,7 +26,6 @@ function levelAriaLabel(
 	completion: LevelCompletionStatus | null,
 ): string {
 	if (completion === "clean") return `Puzzle ${levelId}, completed`;
-	if (completion === "hint") return `Puzzle ${levelId}, completed with hint`;
 	return `Puzzle ${levelId}`;
 }
 
