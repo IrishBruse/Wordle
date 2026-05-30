@@ -1,4 +1,8 @@
+export type { GameStorageEntry } from "./progress-storage";
+export { getGameLocalStorageSnapshot } from "./progress-storage";
+
 const STORAGE_KEY = "wordle-max-unlocked-level";
+const SEED_KEY_PREFIX = "wordle-seed-";
 const COMPLETIONS_KEY = "wordle-level-completions";
 
 export type LevelCompletionStatus = "clean";
@@ -127,7 +131,7 @@ export function clearStoredSeeds(): void {
 	const keys: string[] = [];
 	for (let i = 0; i < window.localStorage.length; i++) {
 		const key = window.localStorage.key(i);
-		if (key?.startsWith("wordle-seed-")) keys.push(key);
+		if (key?.startsWith(SEED_KEY_PREFIX)) keys.push(key);
 	}
 	for (const key of keys) window.localStorage.removeItem(key);
 	notifyProgress();

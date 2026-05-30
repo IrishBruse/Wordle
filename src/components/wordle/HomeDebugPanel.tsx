@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from "react";
 import { useIsLocalhost } from "#/game/dev";
 import {
 	clearAllGameStorage,
@@ -5,9 +6,11 @@ import {
 	clearProgress,
 	clearStoredSeeds,
 	debugFinishLevelZero,
+	getGameLocalStorageSnapshot,
 	getLevelCompletion,
 	setLevelCompletion,
 	setMaxUnlockedLevel,
+	subscribeProgress,
 } from "#/game/progress";
 import { useMaxUnlockedLevel } from "#/game/useProgress";
 import { getNumberedLevels } from "#/levels";
@@ -28,6 +31,11 @@ function DebugButton({
 
 export function HomeDebugPanel() {
 	const maxUnlocked = useMaxUnlockedLevel();
+	const storageEntries = useSyncExternalStore(
+		subscribeProgress,
+		getGameLocalStorageSnapshot,
+		() => [],
+	);
 	const isDev = useIsLocalhost();
 
 	if (!isDev) return null;
@@ -48,6 +56,20 @@ export function HomeDebugPanel() {
 			<p className="home-debug-state">
 				Max unlocked: {maxUnlocked} | Completions: {completionSummary || "none"}
 			</p>
+
+			<div className="home-debug-group">
+				<p className="home-debug-label">Local storage</p>
+				<dl className="home-debug-storage">
+					{storageEntries.map(({ key, value }) => (
+						<div key={key} className="home-debug-storage-row">
+							<dt className="home-debug-storage-key">{key}</dt>
+							<dd className="home-debug-storage-value">
+								{value ?? "(not set)"}
+							</dd>
+						</div>
+					))}
+				</dl>
+			</div>
 
 			<div className="home-debug-group">
 				<p className="home-debug-label">Clear</p>

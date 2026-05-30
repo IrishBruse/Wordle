@@ -138,6 +138,38 @@ a {
   word-break: break-word;
 }
 
+.home-debug-storage {
+  margin: 0;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.home-debug-storage-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+}
+
+.home-debug-storage-row:last-child {
+  margin-bottom: 0;
+}
+
+.home-debug-storage-key,
+.home-debug-storage-value {
+  margin: 0;
+  word-break: break-all;
+}
+
+.home-debug-storage-key {
+  color: #818384;
+}
+
+.home-debug-storage-value {
+  color: #d7dadc;
+  font-family: ui-monospace, monospace;
+}
+
 .home-debug-group {
   margin-bottom: 1rem;
 }

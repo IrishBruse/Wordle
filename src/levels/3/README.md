@@ -3,7 +3,7 @@
 Layout matches Classic, but the target word shifts positions after every successful discovery.
 
 * **Objective:** Guess the hidden five-letter word in six attempts or fewer.
-* **Word validity:** Each guess must be a valid five-letter word from the dictionary.
+* **Word validity:** Each guess must be a valid five-letter word from the dictionary, or any left-rotation of the hidden word (rotated targets are often not dictionary words).
 * **Feedback (Shifting Target):**
 * **Green:** Letter is correct and in the exact position.
 * **Yellow:** Letter is in the word but in a different position.

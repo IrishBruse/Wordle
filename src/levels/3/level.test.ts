@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { rotateWordLeft } from "#/game/conveyor-belt";
+import { isRotatedFormOf, rotateWordLeft } from "#/game/conveyor-belt";
 import { evaluateGuess } from "#/game/evaluate";
 import { simulatePlaythrough } from "#/game/simulate-level";
 import { MAX_GUESSES, WORD_LENGTH } from "#/game/types";
@@ -57,5 +57,11 @@ describe("level 3: Conveyor Belt", () => {
 		const answer = "waver";
 		const rows = simulatePlaythrough(level3, answer, [answer]);
 		expect(rows[0]).toEqual(evaluateGuess(answer, answer));
+	});
+
+	it("treats rotated targets as valid guesses even when not dictionary words", () => {
+		const base = "waver";
+		const rotated = rotateWordLeft(base);
+		expect(isRotatedFormOf(base, rotated)).toBe(true);
 	});
 });

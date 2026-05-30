@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { applyBlueHerring, pickDecoyColumn } from "./blue-herring";
-import { rotateWordLeft, shouldAdvanceConveyor } from "./conveyor-belt";
+import {
+	isRotatedFormOf,
+	rotateWordLeft,
+	shouldAdvanceConveyor,
+} from "./conveyor-belt";
 import { mergeLetterStates } from "./evaluate";
 import { getOrCreateLevelSeed, rollLevelSeed, SSR_FALLBACK_SEED } from "./seed";
 import { rowRevealDurationMs } from "./timing";
@@ -21,11 +25,9 @@ function createBoard(rows: number, cols: number): TileData[][] {
 	return Array.from({ length: rows }, () => emptyRow(cols));
 }
 
-const { allowed: ALLOWED_WORDS, answers: ANSWER_POOL } = getWordLists();
-
 export function useWordleGame(level: LevelConfig) {
-	const [allowed] = useState(() => ALLOWED_WORDS);
-	const [answers] = useState(() => ANSWER_POOL);
+	const [allowed] = useState(() => getWordLists().allowed);
+	const [answers] = useState(() => getWordLists().answers);
 	const [answer, setAnswer] = useState("");
 	const [baseAnswer, setBaseAnswer] = useState("");
 	const answerRef = useRef(answer);
@@ -182,7 +184,12 @@ export function useWordleGame(level: LevelConfig) {
 			return;
 		}
 
-		const isValid = level.isGuessValid?.(guess, allowed) ?? allowed.has(guess);
+		const isValid =
+			level.isGuessValid?.(guess, allowed) ??
+			(allowed.has(guess) ||
+				(level.conveyorBelt &&
+					baseAnswerRef.current !== "" &&
+					isRotatedFormOf(baseAnswerRef.current, guess)));
 		if (!isValid) {
 			showMessage({ type: "not-in-list" });
 			return;
@@ -204,10 +211,20 @@ export function useWordleGame(level: LevelConfig) {
 					: (board[0][column]?.letter ?? null)
 				: null;
 
-		const displayScores =
+		let displayScores =
 			level.blueHerring && column !== null
 				? applyBlueHerring(trueScores, guess, column, herringLetter, rowIndex)
 				: trueScores;
+
+		const wonOnSubmit = level.conveyorBelt
+			? guess === baseAnswerRef.current
+			: guess === answerRef.current;
+		if (wonOnSubmit) {
+			displayScores = Array.from(
+				{ length: level.wordLength },
+				(): LetterState => "correct",
+			);
+		}
 
 		setRevealingRow(rowIndex);
 		setBoard((prev) => {
@@ -224,9 +241,7 @@ export function useWordleGame(level: LevelConfig) {
 		const revealMs = rowRevealDurationMs(level.wordLength);
 		window.setTimeout(() => {
 			setRevealingRow(null);
-			const won = level.conveyorBelt
-				? guess === baseAnswerRef.current
-				: guess === answerRef.current;
+			const won = wonOnSubmit;
 			if (won) {
 				setStatus("won");
 				showMessage({ type: "won", guesses: rowIndex + 1 });

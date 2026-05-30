@@ -10,3 +10,14 @@ export function rotateWordLeft(word: string): string {
 export function shouldAdvanceConveyor(scores: LetterState[]): boolean {
 	return scores.some((state) => state === "correct");
 }
+
+/** True when `candidate` is a left-rotation of `word` (e.g. waver / averw). */
+export function isRotatedFormOf(word: string, candidate: string): boolean {
+	if (word.length !== candidate.length || word.length === 0) return false;
+	let rotated = word;
+	for (let i = 0; i < word.length; i++) {
+		if (rotated === candidate) return true;
+		rotated = rotateWordLeft(rotated);
+	}
+	return false;
+}
