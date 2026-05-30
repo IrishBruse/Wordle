@@ -1,4 +1,4 @@
-import type { LetterState } from "./types";
+import { type LetterState } from "./types";
 
 /** Standard Wordle scoring (handles duplicate letters correctly). */
 export function evaluateGuess(guess: string, answer: string): LetterState[] {

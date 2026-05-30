@@ -102,6 +102,28 @@ a {
   pointer-events: none;
 }
 
+.level-box-complete {
+  background: var(--color-correct);
+  border-color: var(--color-correct);
+}
+
+.level-box-complete:hover {
+  background: var(--color-correct);
+  border-color: var(--color-correct);
+  filter: brightness(1.08);
+}
+
+.level-box-hint {
+  background: var(--color-present);
+  border-color: var(--color-present);
+}
+
+.level-box-hint:hover {
+  background: var(--color-present);
+  border-color: var(--color-present);
+  filter: brightness(1.08);
+}
+
 /* Game shell */
 
 .game {
@@ -189,10 +211,10 @@ a {
   text-align: center;
 }
 
-.game-seed {
+.game-seed,
+.dev-answer {
   position: fixed;
   bottom: 0;
-  left: 0;
   margin: 0;
   padding: 0.5rem 0.75rem;
   font-size: 0.75rem;
@@ -200,6 +222,14 @@ a {
   letter-spacing: 0.04rem;
   color: #818384;
   z-index: 1;
+}
+
+.game-seed {
+  left: 0;
+}
+
+.dev-answer {
+  right: 0;
 }
 
 .message-slot {

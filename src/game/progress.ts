@@ -1,4 +1,7 @@
 const STORAGE_KEY = "wordle-max-unlocked-level";
+const COMPLETIONS_KEY = "wordle-level-completions";
+
+export type LevelCompletionStatus = "clean" | "hint";
 
 function readMaxUnlocked(): number {
 	if (typeof window === "undefined") return 0;
@@ -19,6 +22,47 @@ export function isLevelUnlocked(levelId: number): boolean {
 
 export function hasFinishedFirstPuzzle(): boolean {
 	return readMaxUnlocked() > 0;
+}
+
+function readCompletions(): Record<number, LevelCompletionStatus> {
+	if (typeof window === "undefined") return {};
+	const raw = window.localStorage.getItem(COMPLETIONS_KEY);
+	if (!raw) return {};
+	try {
+		const parsed: unknown = JSON.parse(raw);
+		if (!parsed || typeof parsed !== "object") return {};
+		const out: Record<number, LevelCompletionStatus> = {};
+		for (const [key, value] of Object.entries(parsed)) {
+			const id = Number.parseInt(key, 10);
+			if (!Number.isFinite(id)) continue;
+			if (value === "clean" || value === "hint") out[id] = value;
+		}
+		return out;
+	} catch {
+		return {};
+	}
+}
+
+function writeCompletions(completions: Record<number, LevelCompletionStatus>): void {
+	window.localStorage.setItem(COMPLETIONS_KEY, JSON.stringify(completions));
+}
+
+export function getLevelCompletion(
+	levelId: number,
+): LevelCompletionStatus | null {
+	return readCompletions()[levelId] ?? null;
+}
+
+export function markLevelWon(levelId: number, usedHint: boolean): void {
+	if (typeof window === "undefined") return;
+	const completions = readCompletions();
+	if (!usedHint) {
+		completions[levelId] = "clean";
+	} else if (completions[levelId] !== "clean") {
+		completions[levelId] = "hint";
+	}
+	writeCompletions(completions);
+	notifyProgress();
 }
 
 const PROGRESS_EVENT = "wordle-progress";

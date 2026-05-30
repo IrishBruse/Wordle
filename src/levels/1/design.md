@@ -9,4 +9,3 @@ Play at `/play/1` after completing the tutorial. Layout matches Classic; only th
   - **Green:** Letter is in the word but in a different position.
   - **Gray:** Letter is not in the word.
 
-Hint: SWAPS

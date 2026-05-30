@@ -2,10 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getNextLevel } from "#/levels";
 import { encodeSeed } from "#/game/seed";
-import { isLevelUnlocked, unlockLevel } from "#/game/progress";
+import { isLevelUnlocked, markLevelWon, unlockLevel } from "#/game/progress";
 import type { LevelConfig } from "#/game/types";
 import { useWordleGame } from "#/game/useWordleGame";
 import { Board } from "./Board";
+import { DevAnswerBanner } from "./DevAnswerBanner";
 import { Keyboard } from "./Keyboard";
 import { Message } from "./Message";
 
@@ -27,11 +28,13 @@ export function Game({ level }: GameProps) {
 		clearGuess,
 		submitGuess,
 		restart,
+		answer,
 	} = useWordleGame(level);
 
 	const [shakeRow, setShakeRow] = useState<number | null>(null);
 	const [hintRevealed, setHintRevealed] = useState(false);
 	const unlockedNextRef = useRef(false);
+	const recordedWinRef = useRef(false);
 	const nextLevel = getNextLevel(level.id);
 
 	useEffect(() => {
@@ -41,12 +44,17 @@ export function Game({ level }: GameProps) {
 	useEffect(() => {
 		if (status !== "won") {
 			unlockedNextRef.current = false;
+			recordedWinRef.current = false;
 			return;
+		}
+		if (!recordedWinRef.current) {
+			recordedWinRef.current = true;
+			markLevelWon(level.id, hintRevealed);
 		}
 		if (unlockedNextRef.current || !nextLevel) return;
 		unlockedNextRef.current = true;
 		unlockLevel(nextLevel.id);
-	}, [status, nextLevel]);
+	}, [status, nextLevel, level.id, hintRevealed]);
 
 	useEffect(() => {
 		if (
@@ -152,7 +160,13 @@ export function Game({ level }: GameProps) {
 						<button type="button" className="btn-primary" onClick={restart}>
 							Play again
 						</button>
+						{status === "won" && level.id === 0 ? (
+							<Link to="/" className="btn-primary btn-secondary">
+								Continue
+							</Link>
+						) : null}
 						{status === "won" &&
+						level.id !== 0 &&
 						nextLevel &&
 						isLevelUnlocked(nextLevel.id) ? (
 							<Link
@@ -174,6 +188,7 @@ export function Game({ level }: GameProps) {
 			<p className="game-seed" aria-live="polite">
 				Seed: {encodeSeed(seed)}
 			</p>
+			<DevAnswerBanner answer={answer} />
 		</div>
 	);
 }

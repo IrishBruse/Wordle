@@ -9,7 +9,7 @@ export function getTutorialLevel(): LevelConfig {
 }
 
 export function getNumberedLevels(): LevelConfig[] {
-	return LEVELS.filter((level) => level.id > 0);
+	return LEVELS;
 }
 
 export function getLevel(id: number): LevelConfig | undefined {
