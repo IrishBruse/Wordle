@@ -17,6 +17,8 @@ export type LevelConfig = {
 	id: LevelId;
 	name: string;
 	description: string;
+	/** Shown when the player reveals the hint for this level. */
+	hint: string;
 	wordLength: number;
 	maxGuesses: number;
 	/** Pick the secret word for this run. Override per level. */

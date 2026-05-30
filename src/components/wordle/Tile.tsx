@@ -18,22 +18,31 @@ const stateClass: Record<LetterState, string> = {
 };
 
 export function Tile({ letter, state, animate, delayMs = 0 }: TileProps) {
-	const flipStyle = animate
+	const isFlipping = Boolean(
+		animate && state !== "empty" && state !== "tbd",
+	);
+	const frontState: LetterState = isFlipping ? "tbd" : state;
+
+	const flipStyle = isFlipping
 		? ({
-				animationDelay: `${delayMs}ms`,
 				"--tile-flip-ms": `${TILE_FLIP_MS}ms`,
+				"--tile-flip-delay": `${delayMs}ms`,
 			} as CSSProperties)
 		: undefined;
 
 	return (
 		<div
-			className={`tile ${stateClass[state]}${animate ? " tile-flip" : ""}`}
+			className={`tile${isFlipping ? " tile-flip" : ""}`}
 			style={flipStyle}
 			data-state={state}
 		>
 			<div className="tile-inner">
-				<div className="tile-front">{letter}</div>
-				<div className="tile-back">{letter}</div>
+				<div className={`tile-face tile-front ${stateClass[frontState]}`}>
+					{letter}
+				</div>
+				<div className={`tile-face tile-back ${stateClass[state]}`}>
+					{letter}
+				</div>
 			</div>
 		</div>
 	);

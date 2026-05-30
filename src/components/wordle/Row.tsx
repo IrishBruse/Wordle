@@ -13,10 +13,10 @@ export function Row({ tiles, shake, reveal }: RowProps) {
 		<div className={`row${shake ? " row-shake" : ""}`}>
 			{tiles.map((tile, index) => (
 				<Tile
-					key={`${index}-${tile.letter}-${tile.state}`}
+					key={index}
 					letter={tile.letter}
 					state={tile.state}
-					animate={reveal && tile.state !== "empty" && tile.state !== "tbd"}
+					animate={reveal}
 					delayMs={index * TILE_FLIP_STAGGER_MS}
 				/>
 			))}

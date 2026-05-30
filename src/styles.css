@@ -14,7 +14,7 @@
   --key-height: 58px;
   --font-game: "Helvetica Neue", Arial, sans-serif;
   --tile-pop-in-ms: 150ms;
-  --tile-flip-ms: 650ms;
+  --tile-flip-ms: 600ms;
 }
 
 * {
@@ -153,13 +153,53 @@ a {
   white-space: nowrap;
 }
 
-.game-seed {
-  margin: 0 0 0.25rem;
+.game-hint {
+  width: 100%;
+  max-width: 500px;
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.25rem;
+}
+
+.game-hint-btn {
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.04rem;
   color: #818384;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.game-hint-btn:hover {
+  color: var(--color-text);
+}
+
+.game-hint-text {
+  margin: 0;
+  padding: 0 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: #d7dadc;
   text-align: center;
+}
+
+.game-seed {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04rem;
+  color: #818384;
+  z-index: 1;
 }
 
 .message-slot {
@@ -247,8 +287,7 @@ a {
   transform-style: preserve-3d;
 }
 
-.tile-front,
-.tile-back {
+.tile-face {
   position: absolute;
   inset: 0;
   display: flex;
@@ -258,45 +297,46 @@ a {
   font-weight: 700;
   text-transform: uppercase;
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   border: 2px solid var(--color-tile-border);
 }
 
-.tile-empty .tile-front,
-.tile-empty .tile-back {
+.tile-front {
+  z-index: 2;
+}
+
+.tile-back {
+  z-index: 1;
+  transform: rotateX(180deg);
+}
+
+.tile-face.tile-empty {
   background: transparent;
   border-color: var(--color-tile-border);
 }
 
-.tile-tbd .tile-front,
-.tile-tbd .tile-back {
+.tile-front.tile-tbd {
   background: transparent;
   border-color: #565758;
   animation: pop-in var(--tile-pop-in-ms) ease;
 }
 
-.tile-correct .tile-front,
-.tile-correct .tile-back {
+.tile-face.tile-correct {
   background: var(--color-correct);
   border-color: var(--color-correct);
   color: #fff;
 }
 
-.tile-present .tile-front,
-.tile-present .tile-back {
+.tile-face.tile-present {
   background: var(--color-present);
   border-color: var(--color-present);
   color: #fff;
 }
 
-.tile-absent .tile-front,
-.tile-absent .tile-back {
+.tile-face.tile-absent {
   background: var(--color-absent);
   border-color: var(--color-absent);
   color: #fff;
-}
-
-.tile-flip .tile-inner {
-  animation: flip var(--tile-flip-ms, 650ms) ease forwards;
 }
 
 @keyframes pop-in {
@@ -308,20 +348,9 @@ a {
   }
 }
 
-@keyframes flip {
-  0% {
-    transform: rotateX(0deg);
-  }
-  50% {
-    transform: rotateX(-90deg);
-  }
-  100% {
-    transform: rotateX(0deg);
-  }
-}
-
 .tile-flip .tile-front {
-  animation: hide-front var(--tile-flip-ms, 650ms) ease forwards;
+  animation: hide-front var(--tile-flip-ms, 600ms) ease-in forwards;
+  animation-delay: var(--tile-flip-delay, 0ms);
 }
 
 @keyframes hide-front {
@@ -337,8 +366,8 @@ a {
 }
 
 .tile-flip .tile-back {
-  transform: rotateX(180deg);
-  animation: show-back var(--tile-flip-ms, 650ms) ease forwards;
+  animation: show-back var(--tile-flip-ms, 600ms) ease-in forwards;
+  animation-delay: var(--tile-flip-delay, 0ms);
 }
 
 @keyframes show-back {
@@ -365,21 +394,31 @@ a {
   flex-shrink: 0;
   padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
   user-select: none;
+  opacity: 1;
+  transition: opacity 0.35s ease-in-out;
+}
+
+.keyboard-inactive {
+  opacity: 0.72;
+  pointer-events: none;
 }
 
 .keyboard-row {
   display: flex;
   justify-content: center;
   gap: 6px;
+  width: 100%;
 }
 
 .key {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 43px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 43px;
   height: var(--key-height);
-  padding: 0 8px;
+  padding: 0 4px;
   border: none;
   border-radius: 4px;
   background: var(--color-key);
@@ -392,13 +431,12 @@ a {
 }
 
 .key:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  opacity: 1;
+  cursor: default;
 }
 
 .key-wide {
-  min-width: 65px;
-  flex-grow: 1;
+  flex: 1.5 1 0;
   max-width: 106px;
   font-size: 0.875rem;
 }
@@ -487,12 +525,22 @@ a.btn-primary {
     --key-height: 52px;
   }
 
+  .keyboard-row {
+    gap: 4px;
+  }
+
   .key {
-    min-width: 36px;
+    max-width: none;
     font-size: 0.875rem;
   }
 
   .key-wide {
-    min-width: 52px;
+    max-width: none;
+    font-size: 0.75rem;
+  }
+
+  .key-icon {
+    width: 20px;
+    height: 20px;
   }
 }

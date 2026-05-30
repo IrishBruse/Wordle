@@ -15,7 +15,7 @@ function normalizeBase(basePath) {
 	return base;
 }
 
-const base = normalizeBase(process.env.VITE_BASE_PATH);
+const base = normalizeBase(process.env.VITE_BASE_PATH ?? "/Wordle/");
 const routes = [`${base}/`, `${base}/play`, `${base}/play/1`];
 
 async function startPreviewServer() {

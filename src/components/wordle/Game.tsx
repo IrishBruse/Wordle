@@ -24,13 +24,19 @@ export function Game({ level }: GameProps) {
 		seed,
 		addLetter,
 		removeLetter,
+		clearGuess,
 		submitGuess,
 		restart,
 	} = useWordleGame(level);
 
 	const [shakeRow, setShakeRow] = useState<number | null>(null);
+	const [hintRevealed, setHintRevealed] = useState(false);
 	const unlockedNextRef = useRef(false);
 	const nextLevel = getNextLevel(level.id);
+
+	useEffect(() => {
+		setHintRevealed(false);
+	}, [level.id]);
 
 	useEffect(() => {
 		if (status !== "won") {
@@ -71,6 +77,15 @@ export function Game({ level }: GameProps) {
 
 	useEffect(() => {
 		const onKeyDown = (event: KeyboardEvent) => {
+			if (
+				event.key === "Backspace" &&
+				(event.ctrlKey || event.metaKey) &&
+				!event.altKey
+			) {
+				event.preventDefault();
+				clearGuess();
+				return;
+			}
 			if (event.ctrlKey || event.metaKey || event.altKey) return;
 			const key = event.key;
 			if (key === "Enter") {
@@ -90,7 +105,7 @@ export function Game({ level }: GameProps) {
 		};
 		window.addEventListener("keydown", onKeyDown);
 		return () => window.removeEventListener("keydown", onKeyDown);
-	}, [handleKey]);
+	}, [clearGuess, handleKey]);
 
 	const disabled = status !== "playing" || revealingRow !== null;
 
@@ -105,9 +120,19 @@ export function Game({ level }: GameProps) {
 					New
 				</button>
 			</header>
-			<p className="game-seed" aria-live="polite">
-				Seed: {encodeSeed(seed)}
-			</p>
+			<div className="game-hint">
+				{hintRevealed ? (
+					<p className="game-hint-text">{level.hint}</p>
+				) : (
+					<button
+						type="button"
+						className="game-hint-btn"
+						onClick={() => setHintRevealed(true)}
+					>
+						Show hint
+					</button>
+				)}
+			</div>
 
 			<Message message={message} />
 
@@ -146,6 +171,9 @@ export function Game({ level }: GameProps) {
 				onKey={handleKey}
 				disabled={disabled}
 			/>
+			<p className="game-seed" aria-live="polite">
+				Seed: {encodeSeed(seed)}
+			</p>
 		</div>
 	);
 }

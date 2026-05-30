@@ -113,6 +113,20 @@ export function useWordleGame(level: LevelConfig) {
 		});
 	}, [currentRow, revealingRow, status]);
 
+	const clearGuess = useCallback(() => {
+		if (status !== "playing" || revealingRow !== null) return;
+		setBoard((prev) => {
+			const row = prev[currentRow];
+			if (!row.some((tile) => tile.letter !== "")) return prev;
+			const next = prev.map((r) => r.map((tile) => ({ ...tile })));
+			for (const tile of next[currentRow]) {
+				tile.letter = "";
+				tile.state = "empty";
+			}
+			return next;
+		});
+	}, [currentRow, revealingRow, status]);
+
 	const submitGuess = useCallback(() => {
 		if (status !== "playing" || revealingRow !== null) return;
 
@@ -188,6 +202,7 @@ export function useWordleGame(level: LevelConfig) {
 		seed,
 		addLetter,
 		removeLetter,
+		clearGuess,
 		submitGuess,
 		restart,
 		answer,

@@ -81,7 +81,7 @@ export function Keyboard({
 
 	return (
 		<div
-			className="keyboard"
+			className={`keyboard${disabled ? " keyboard-inactive" : ""}`}
 			role="group"
 			aria-label={
 				showSymbols ? "On-screen symbols keyboard" : "On-screen keyboard"
