@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { markLevelWon, unlockLevel } from "#/game/progress";
-import { useIsLevelUnlocked } from "#/game/useProgress";
 import { encodeSeed } from "#/game/seed";
 import type { LevelConfig } from "#/game/types";
+import { useIsLevelUnlocked } from "#/game/useProgress";
 import { useWordleGame } from "#/game/useWordleGame";
 import { getNextLevel } from "#/levels";
 import { Board } from "./Board";
