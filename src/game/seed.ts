@@ -5,17 +5,22 @@ const STORAGE_PREFIX = "wordle-seed-";
 /** Stable initial seed for SSR and the first client render (before localStorage sync). */
 export const SSR_FALLBACK_SEED = 1;
 const BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const SEED_CODE_LENGTH = 4;
+const MAX_SEED = 62 ** SEED_CODE_LENGTH;
+
+function normalizeSeed(seed: number): number {
+	return (seed >>> 0) % MAX_SEED;
+}
 
 /** Compact alphanumeric code for display and storage (0-9, a-z, A-Z). */
 export function encodeSeed(seed: number): string {
-	let n = seed >>> 0;
-	if (n === 0) return "0";
+	let n = normalizeSeed(seed);
 	let out = "";
-	while (n > 0) {
+	do {
 		out = BASE62[n % 62] + out;
 		n = Math.floor(n / 62);
-	}
-	return out;
+	} while (n > 0);
+	return out.padStart(SEED_CODE_LENGTH, "0");
 }
 
 export function decodeSeed(encoded: string): number | null {
@@ -48,7 +53,7 @@ function storageKey(levelId: LevelId): string {
 }
 
 function randomSeed(): number {
-	return Math.floor(Math.random() * 0x1_0000_0000) >>> 0;
+	return Math.floor(Math.random() * MAX_SEED) >>> 0;
 }
 
 /** Mulberry32 PRNG; same seed yields the same sequence. */
@@ -84,8 +89,9 @@ export function getOrCreateLevelSeed(levelId: LevelId): number {
 		writeStoredSeed(levelId, seed);
 		return seed;
 	}
-	writeStoredSeed(levelId, parsed);
-	return parsed;
+	const normalized = normalizeSeed(parsed);
+	writeStoredSeed(levelId, normalized);
+	return normalized;
 }
 
 export function rollLevelSeed(levelId: LevelId): number {

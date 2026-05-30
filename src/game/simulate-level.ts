@@ -1,3 +1,4 @@
+import { applyBlindDisplay } from "./blind-feedback";
 import { applyBlueHerring, pickDecoyColumn } from "./blue-herring";
 import { rotateWordLeft, shouldAdvanceConveyor } from "./conveyor-belt";
 import type { LetterState, LevelConfig } from "./types";
@@ -5,6 +6,8 @@ import type { LetterState, LevelConfig } from "./types";
 export type ScoreGuessOptions = {
 	/** Pin the blue decoy column (level 2) instead of random. */
 	fixedDecoyColumn?: number;
+	/** Word that counts as a win (conveyor: original answer, not rotated target). */
+	winAgainst?: string;
 };
 
 /** Score one submitted row the same way as useWordleGame. */
@@ -30,10 +33,15 @@ export function scoreGuessForLevel(
 	if (level.blueHerring && column !== null && rowIndex === 0) {
 		letter = guess[column].toUpperCase();
 	}
-	const scores =
+	let scores =
 		level.blueHerring && column !== null
 			? applyBlueHerring(trueScores, guess, column, letter, rowIndex)
 			: trueScores;
+	if (level.blindFeedback) {
+		const winTarget = options?.winAgainst ?? answer;
+		const won = guess === winTarget;
+		scores = applyBlindDisplay(scores, won);
+	}
 	return { scores, decoyColumn: column, decoyLetter: letter };
 }
 
@@ -57,7 +65,7 @@ export function simulatePlaythrough(
 			i,
 			decoyColumn,
 			decoyLetter,
-			options,
+			{ ...options, winAgainst: initialAnswer },
 		);
 		rows.push(result.scores);
 		decoyColumn = result.decoyColumn;

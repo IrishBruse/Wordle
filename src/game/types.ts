@@ -37,6 +37,8 @@ export type LevelConfig = {
 	blueHerring?: boolean;
 	/** Scoring target rotates left after greens; win when the original word is guessed. */
 	conveyorBelt?: boolean;
+	/** Tiles and keyboard stay gray until the winning guess (all green). */
+	blindFeedback?: boolean;
 };
 
 export type GameMessage =

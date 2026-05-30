@@ -8,16 +8,17 @@ import {
 
 describe("encodeSeed", () => {
 	it("round-trips a seed", () => {
-		expect(decodeSeed(encodeSeed(2_147_483_647))).toBe(2_147_483_647);
+		expect(decodeSeed(encodeSeed(12_345_678))).toBe(12_345_678);
 	});
 
 	it("uses only alphanumeric characters", () => {
 		expect(encodeSeed(3_041_456_789)).toMatch(/^[0-9a-zA-Z]+$/);
 	});
 
-	it("is shorter than decimal for large seeds", () => {
-		const seed = 3_041_456_789;
-		expect(encodeSeed(seed).length).toBeLessThan(String(seed).length);
+	it("is always four characters", () => {
+		expect(encodeSeed(0)).toHaveLength(4);
+		expect(encodeSeed(1)).toBe("0001");
+		expect(encodeSeed(3_041_456_789)).toHaveLength(4);
 	});
 });
 

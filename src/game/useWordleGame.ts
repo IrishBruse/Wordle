@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { applyBlindDisplay } from "./blind-feedback";
 import { applyBlueHerring, pickDecoyColumn } from "./blue-herring";
 import {
 	isRotatedFormOf,
@@ -224,6 +225,8 @@ export function useWordleGame(level: LevelConfig) {
 				{ length: level.wordLength },
 				(): LetterState => "correct",
 			);
+		} else if (level.blindFeedback) {
+			displayScores = applyBlindDisplay(displayScores, false);
 		}
 
 		setRevealingRow(rowIndex);
