@@ -33,6 +33,21 @@ describe("level 6: Inverted", () => {
 		expect(level6.isGuessValid?.("zzzzz", allowed)).toBe(true);
 	});
 
+	it("rejects linear alphabet runs", () => {
+		expect(level6.isGuessValid?.("abcde", allowed)).toBe(false);
+		expect(level6.isGuessValid?.("edcba", allowed)).toBe(false);
+		expect(level6.isGuessValid?.("bcdef", allowed)).toBe(false);
+	});
+
+	it("never picks a linear alphabet run as the secret", () => {
+		for (let seed = 0; seed < 200; seed++) {
+			const secret = level6.pickAnswer(answers, seed);
+			expect(secret).toMatch(/^[a-z]{5}$/);
+			expect(allowed.has(secret)).toBe(false);
+			expect(level6.isGuessValid?.(secret, allowed)).toBe(true);
+		}
+	});
+
 	it("scores guesses with standard Wordle rules", () => {
 		const secret = level6.pickAnswer(answers, 7);
 		const guess = `${secret.slice(0, 4)}x`;

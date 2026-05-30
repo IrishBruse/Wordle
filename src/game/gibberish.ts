@@ -4,6 +4,24 @@ import { WORD_LENGTH } from "./types";
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 const MAX_ATTEMPTS = 100;
 
+/** True when every letter steps by +1 or -1 in the alphabet (e.g. abcde, edcba). */
+export function isLinearAlphabetRun(word: string): boolean {
+	if (word.length < 2) return false;
+	const step = word.charCodeAt(1) - word.charCodeAt(0);
+	if (step !== 1 && step !== -1) return false;
+	for (let i = 2; i < word.length; i++) {
+		if (word.charCodeAt(i) - word.charCodeAt(i - 1) !== step) return false;
+	}
+	return true;
+}
+
+function isRejectedGibberish(
+	candidate: string,
+	invalidWords: Set<string>,
+): boolean {
+	return invalidWords.has(candidate) || isLinearAlphabetRun(candidate);
+}
+
 function randomLetters(rng: () => number, length: number): string {
 	let out = "";
 	for (let i = 0; i < length; i++) {
@@ -22,9 +40,14 @@ export function pickGibberishForSeed(
 	const rng = createSeededRng(seed);
 	for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
 		const candidate = randomLetters(rng, length);
-		if (!invalidWords.has(candidate)) return candidate;
+		if (!isRejectedGibberish(candidate, invalidWords)) return candidate;
 	}
-	return randomLetters(createSeededRng(seed + MAX_ATTEMPTS), length);
+	const fallbackRng = createSeededRng(seed + MAX_ATTEMPTS);
+	for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+		const candidate = randomLetters(fallbackRng, length);
+		if (!isRejectedGibberish(candidate, invalidWords)) return candidate;
+	}
+	return randomLetters(fallbackRng, length);
 }
 
 /** Resolve gibberish answer for a four-digit seed code (level 6). */

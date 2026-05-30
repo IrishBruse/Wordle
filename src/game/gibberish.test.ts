@@ -1,7 +1,25 @@
 import { describe, expect, it } from "vitest";
-import { gibberishForEncodedSeed, pickGibberishForSeed } from "./gibberish";
+import {
+	gibberishForEncodedSeed,
+	isLinearAlphabetRun,
+	pickGibberishForSeed,
+} from "./gibberish";
 import { encodeSeed } from "./seed";
 import { getWordLists } from "./words";
+
+describe("isLinearAlphabetRun", () => {
+	it("detects ascending and descending runs", () => {
+		expect(isLinearAlphabetRun("abcde")).toBe(true);
+		expect(isLinearAlphabetRun("bcdef")).toBe(true);
+		expect(isLinearAlphabetRun("edcba")).toBe(true);
+	});
+
+	it("allows non-linear strings", () => {
+		expect(isLinearAlphabetRun("zzzzz")).toBe(false);
+		expect(isLinearAlphabetRun("acegi")).toBe(false);
+		expect(isLinearAlphabetRun("abcef")).toBe(false);
+	});
+});
 
 describe("pickGibberishForSeed", () => {
 	it("returns the same string for the same seed", () => {
@@ -26,6 +44,7 @@ describe("pickGibberishForSeed", () => {
 			expect(word).toHaveLength(5);
 			expect(word).toMatch(/^[a-z]+$/);
 			expect(allowed.has(word)).toBe(false);
+			expect(isLinearAlphabetRun(word)).toBe(false);
 		}
 	});
 });

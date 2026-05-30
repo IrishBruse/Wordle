@@ -1,5 +1,5 @@
 import { evaluateGuess } from "#/game/evaluate";
-import { pickGibberishForSeed } from "#/game/gibberish";
+import { isLinearAlphabetRun, pickGibberishForSeed } from "#/game/gibberish";
 import type { LevelConfig } from "#/game/types";
 import { MAX_GUESSES, WORD_LENGTH } from "#/game/types";
 import { getWordLists } from "#/game/words";
@@ -10,7 +10,10 @@ function pickInvertedAnswer(_words: string[], seed: number): string {
 }
 
 function isInvertedGuessValid(guess: string, allowed: Set<string>): boolean {
-	return guess.length === WORD_LENGTH && !allowed.has(guess);
+	if (guess.length !== WORD_LENGTH) return false;
+	if (allowed.has(guess)) return false;
+	if (isLinearAlphabetRun(guess)) return false;
+	return true;
 }
 
 export const level6: LevelConfig = {
