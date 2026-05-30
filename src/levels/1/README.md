@@ -1,6 +1,6 @@
 # Level 1: Double Agent
 
-Play at `/play/1` after completing the tutorial. Layout matches Classic; only the color meanings change.
+Layout matches Classic; only the color meanings change.
 
 - **Objective:** Guess the hidden five-letter word in six attempts or fewer.
 - **Word validity:** Each guess must be a valid five-letter word from the dictionary.

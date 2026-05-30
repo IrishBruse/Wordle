@@ -1,6 +1,6 @@
 # Level 2: The Blue Herring
 
-Play at `/play/2` after completing Level 1. Layout matches Classic but introduces a permanent decoy feedback state.
+Layout matches Classic but introduces a permanent decoy feedback state.
 
 - **Objective:** Guess the hidden five-letter word in six attempts or fewer.
 - **Word validity:** Each guess must be a valid five-letter word from the dictionary.
