@@ -6,7 +6,8 @@ import { MAX_GUESSES, WORD_LENGTH } from "#/game/types";
 export const level2: LevelConfig = {
 	id: 2,
 	name: "The Blue Herring",
-	description: "Five letters, six guesses.",
+	description:
+		"After your first guess, one random letter stays blue on every tile and key.",
 	hint: "I'm blue, da-ba-dee, da-ba-di",
 	wordLength: WORD_LENGTH,
 	maxGuesses: MAX_GUESSES,

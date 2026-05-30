@@ -14,7 +14,8 @@
     "lint": "biome lint",
     "check": "biome check",
     "check:src": "biome check src vite.config.ts",
-    "verify": "npm run check:src && npm test && npm run build"
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run check:src && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",

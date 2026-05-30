@@ -1,4 +1,5 @@
 import { createSeededRng, decodeSeed, pickAnswerForSeed } from "./seed";
+import { getWordLists } from "./words";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 const MAX_ATTEMPTS = 100;
@@ -76,6 +77,12 @@ export function pickMutatedAnswerForSeed(
 	allowed: Set<string>,
 ): string {
 	return pickMutatedAnswerDetailsForSeed(words, seed, allowed).answer;
+}
+
+/** Level 6: seeded answer from the pool with one letter replaced (not in allowed). */
+export function pickAlmostAnswerForSeed(words: string[], seed: number): string {
+	const { allowed } = getWordLists();
+	return pickMutatedAnswerForSeed(words, seed, allowed);
 }
 
 export function formatMutationChange(details: MutatedAnswerDetails): string {

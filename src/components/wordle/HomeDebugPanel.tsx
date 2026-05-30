@@ -57,8 +57,10 @@ function SeedLookup() {
 		result = "Invalid seed";
 	} else if (levelId === "6" && typeof lookup === "object") {
 		result = `${lookup.answer.toUpperCase()} | ${formatMutationChange(lookup)}`;
-	} else {
+	} else if (typeof lookup === "string") {
 		result = levelId === "7" ? lookup : lookup.toUpperCase();
+	} else {
+		result = "Invalid seed";
 	}
 
 	return (

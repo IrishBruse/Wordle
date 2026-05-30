@@ -4,7 +4,7 @@ import { markLevelWon, unlockLevel } from "#/game/progress";
 import { encodeSeed } from "#/game/seed";
 import { isAllowedLeetKey } from "#/game/symbols";
 import type { LevelConfig } from "#/game/types";
-import { useIsLevelUnlocked } from "#/game/useProgress";
+import { useIsLevelUnlocked, useLevelCompletion } from "#/game/useProgress";
 import { useWordleGame } from "#/game/useWordleGame";
 import { getNextLevel } from "#/levels";
 import { Board } from "./Board";
@@ -39,6 +39,7 @@ export function Game({ level }: GameProps) {
 	const recordedWinRef = useRef(false);
 	const nextLevel = getNextLevel(level.id);
 	const nextLevelUnlocked = useIsLevelUnlocked(nextLevel?.id ?? -1);
+	const beaten = useLevelCompletion(level.id) === "clean";
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: reset hint when switching levels
 	useEffect(() => {
@@ -138,17 +139,30 @@ export function Game({ level }: GameProps) {
 				</button>
 			</header>
 			<div className="game-hint">
-				{hintRevealed ? (
-					<p className="game-hint-text">{level.hint}</p>
-				) : (
-					<button
-						type="button"
-						className="game-hint-btn"
-						onClick={() => setHintRevealed(true)}
+				{beaten ? (
+					<p className="game-description">{level.description}</p>
+				) : null}
+				<div className="game-hint-slot">
+					<p
+						className={
+							hintRevealed
+								? "game-hint-text"
+								: "game-hint-text game-hint-text-reserved"
+						}
+						aria-hidden={!hintRevealed}
 					>
-						Show hint
-					</button>
-				)}
+						{level.hint}
+					</p>
+					{hintRevealed ? null : (
+						<button
+							type="button"
+							className="game-hint-btn"
+							onClick={() => setHintRevealed(true)}
+						>
+							Show hint
+						</button>
+					)}
+				</div>
 			</div>
 
 			<Message message={message} />

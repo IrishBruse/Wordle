@@ -6,7 +6,8 @@ import { MAX_GUESSES, WORD_LENGTH } from "#/game/types";
 export const level0: LevelConfig = {
 	id: 0,
 	name: "Classic",
-	description: "Standard Wordle. Five letters, six guesses.",
+	description:
+		"Standard Wordle scoring: green is exact, yellow is in the word, gray is out.",
 	hint: "Skill issue",
 	wordLength: WORD_LENGTH,
 	maxGuesses: MAX_GUESSES,

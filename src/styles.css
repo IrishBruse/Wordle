@@ -320,20 +320,49 @@ a {
   max-width: 500px;
   min-height: 2rem;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.35rem;
   margin-bottom: 0.25rem;
 }
 
+.game-description {
+  margin: 0;
+  padding: 0 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: #a0a0a0;
+  text-align: center;
+}
+
+.game-hint-slot {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.game-hint-text-reserved {
+  visibility: hidden;
+}
+
 .game-hint-btn {
-  font-size: 0.75rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.35;
   font-weight: 600;
   letter-spacing: 0.04rem;
   color: #818384;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
+  padding: 0;
+  white-space: nowrap;
   text-decoration: underline;
   text-underline-offset: 2px;
 }

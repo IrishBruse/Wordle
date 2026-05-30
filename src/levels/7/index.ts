@@ -17,7 +17,7 @@ export const level7: LevelConfig = {
 	id: 7,
 	name: "Symbols",
 	description:
-		"Five letters, eight guesses. Some letters become symbols (@, !, 0, $).",
+		"Use @, !, 0, and $ instead of A, I, O, and S in every guess and the answer.",
 	hint: "A is @, I is !, O is 0, S is $. Tap 123 for symbols.",
 	wordLength: WORD_LENGTH,
 	maxGuesses: MAX_GUESSES,

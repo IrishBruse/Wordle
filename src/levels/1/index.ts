@@ -6,7 +6,8 @@ import { evaluateGuessInvertedColors } from "./evaluate";
 export const level1: LevelConfig = {
 	id: 1,
 	name: "Double Agent",
-	description: "Five letters, six guesses.",
+	description:
+		"Green and yellow are swapped: yellow is exact and green is in the word elsewhere.",
 	hint: "Sdrawkcab",
 	wordLength: WORD_LENGTH,
 	maxGuesses: MAX_GUESSES,

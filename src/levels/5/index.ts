@@ -1,5 +1,5 @@
 import { evaluateGuess } from "#/game/evaluate";
-import type { LevelConfig } from "#/game/types";
+import type { LetterState, LevelConfig } from "#/game/types";
 import { MAX_GUESSES, WORD_LENGTH } from "#/game/types";
 
 export const HARDCODED_ANSWER = "wordle";
@@ -24,7 +24,8 @@ function isPhantomGuessValid(guess: string, allowed: Set<string>): boolean {
 export const level5: LevelConfig = {
 	id: 5,
 	name: "Phantom",
-	description: "Five letters, six guesses.",
+	description:
+		"The answer has six letters but only five tiles show; type the sixth after the row fills.",
 	hint: "The name of the game",
 	wordLength: WORD_LENGTH,
 	guessLength: GUESS_LENGTH,

@@ -10,7 +10,7 @@ export const SYMBOL_KEY_ROWS = [
 
 const KEYBOARD_MODE_KEYS = new Set(["ENTER", "BACK", "ABC", "123"]);
 
-export const SYMBOL_CHARS = new Set(
+export const SYMBOL_CHARS: Set<string> = new Set(
 	SYMBOL_KEY_ROWS.flat().filter((key) => !KEYBOARD_MODE_KEYS.has(key)),
 );
 

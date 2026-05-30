@@ -11,8 +11,9 @@ npm run verify
 `verify` runs, in order:
 
 1. `npm run check:src` - Biome lint and format on `src/` and `vite.config.ts`
-2. `npm test` - Vitest unit tests
-3. `npm run build` - Production build and static export
+2. `npm run typecheck` - TypeScript (`tsc --noEmit`)
+3. `npm test` - Vitest unit tests
+4. `npm run build` - Production build and static export
 
 Do not mark a task complete until `npm verify` exits successfully.
 
