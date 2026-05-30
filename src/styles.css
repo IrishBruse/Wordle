@@ -376,6 +376,15 @@ a {
   letter-spacing: 0.04rem;
   color: #818384;
   z-index: 1;
+  text-align: right;
+}
+
+.dev-answer-line {
+  margin: 0;
+}
+
+.dev-answer-line + .dev-answer-line {
+  margin-top: 0.25rem;
 }
 
 .message-slot {

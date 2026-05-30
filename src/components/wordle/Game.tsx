@@ -193,7 +193,7 @@ export function Game({ level }: GameProps) {
 				disabled={disabled}
 				symbolsView={level.symbolsKeyboard}
 			/>
-			<DevAnswerBanner answer={answer} />
+			<DevAnswerBanner answer={answer} levelId={level.id} seed={seed} />
 		</div>
 	);
 }

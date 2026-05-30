@@ -1,6 +1,9 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useIsLocalhost } from "#/game/dev";
-import { mutatedAnswerForEncodedSeed } from "#/game/mutated";
+import {
+	formatMutationChange,
+	mutatedAnswerDetailsForEncodedSeed,
+} from "#/game/mutated";
 import {
 	clearAllGameStorage,
 	clearCompletions,
@@ -39,7 +42,7 @@ function SeedLookup() {
 	const { answers, allowed } = useMemo(() => getWordLists(), []);
 	const lookup = useMemo(() => {
 		if (levelId === "6") {
-			return mutatedAnswerForEncodedSeed(seedCode, answers, allowed);
+			return mutatedAnswerDetailsForEncodedSeed(seedCode, answers, allowed);
 		}
 		if (levelId === "7") {
 			return symbolsForEncodedSeed(seedCode, answers);
@@ -52,6 +55,8 @@ function SeedLookup() {
 		result = "Enter a seed code";
 	} else if (lookup === null) {
 		result = "Invalid seed";
+	} else if (levelId === "6" && typeof lookup === "object") {
+		result = `${lookup.answer.toUpperCase()} | ${formatMutationChange(lookup)}`;
 	} else {
 		result = levelId === "7" ? lookup : lookup.toUpperCase();
 	}

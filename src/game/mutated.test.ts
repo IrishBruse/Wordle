@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+	formatMutationChange,
 	letterDifferenceCount,
+	mutatedAnswerDetailsForEncodedSeed,
 	mutatedAnswerForEncodedSeed,
+	pickMutatedAnswerDetailsForSeed,
 	pickMutatedAnswerForSeed,
 } from "./mutated";
 import { encodeSeed, pickAnswerForSeed } from "./seed";
@@ -50,5 +53,26 @@ describe("mutatedAnswerForEncodedSeed", () => {
 		expect(mutatedAnswerForEncodedSeed(code, answers, allowed)).toBe(
 			pickMutatedAnswerForSeed(answers, 42, allowed),
 		);
+	});
+
+	it("returns details for a valid code", () => {
+		const { allowed, answers } = getWordLists();
+		const code = encodeSeed(42);
+		expect(mutatedAnswerDetailsForEncodedSeed(code, answers, allowed)).toEqual(
+			pickMutatedAnswerDetailsForSeed(answers, 42, allowed),
+		);
+	});
+});
+
+describe("formatMutationChange", () => {
+	it("describes the changed letter and base word", () => {
+		const line = formatMutationChange({
+			answer: "brxne",
+			base: "crane",
+			position: 2,
+			from: "a",
+			to: "x",
+		});
+		expect(line).toBe("Pos 3: A -> X (from CRANE)");
 	});
 });
