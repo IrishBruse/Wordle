@@ -8,10 +8,6 @@ export const SSR_FALLBACK_SEED = 1;
 const SEED_CODE_LENGTH = 4;
 const MAX_SEED = 10 ** SEED_CODE_LENGTH;
 
-/** Base62 alphabet for seeds stored before numeric-only codes. */
-const LEGACY_BASE62 =
-	"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
 function normalizeSeed(seed: number): number {
 	return (seed >>> 0) % MAX_SEED;
 }
@@ -26,29 +22,6 @@ export function decodeSeed(encoded: string): number | null {
 	const n = Number.parseInt(encoded, 10);
 	if (!Number.isFinite(n) || n < 0 || n >= MAX_SEED) return null;
 	return n;
-}
-
-function decodeLegacyBase62Seed(encoded: string): number | null {
-	if (!encoded) return null;
-	let n = 0;
-	for (const char of encoded) {
-		const digit = LEGACY_BASE62.indexOf(char);
-		if (digit === -1) return null;
-		n = n * 62 + digit;
-		if (n > 0xffff_ffff) return null;
-	}
-	return normalizeSeed(n >>> 0);
-}
-
-function readStoredSeed(raw: string): number | null {
-	if (/[a-zA-Z]/.test(raw)) return decodeLegacyBase62Seed(raw);
-	if (/^\d+$/.test(raw)) {
-		const fromCode = decodeSeed(raw);
-		if (fromCode !== null) return fromCode;
-		const legacy = Number.parseInt(raw, 10);
-		if (Number.isFinite(legacy)) return normalizeSeed(legacy);
-	}
-	return decodeLegacyBase62Seed(raw);
 }
 
 function writeStoredSeed(levelId: LevelId, seed: number): void {
@@ -94,25 +67,7 @@ export function answerForEncodedSeed(
 	return pickAnswerForSeed(words, seed);
 }
 
-export function getOrCreateLevelSeed(levelId: LevelId): number {
-	if (typeof window === "undefined") return SSR_FALLBACK_SEED;
-	const raw = window.localStorage.getItem(storageKey(levelId));
-	if (!raw) {
-		const seed = randomSeed();
-		writeStoredSeed(levelId, seed);
-		return seed;
-	}
-	const parsed = readStoredSeed(raw);
-	if (parsed === null) {
-		const seed = randomSeed();
-		writeStoredSeed(levelId, seed);
-		return seed;
-	}
-	const normalized = normalizeSeed(parsed);
-	writeStoredSeed(levelId, normalized);
-	return normalized;
-}
-
+/** Assign a new random seed when starting or re-entering a level. */
 export function rollLevelSeed(levelId: LevelId): number {
 	if (typeof window === "undefined") return SSR_FALLBACK_SEED;
 	const seed = randomSeed();

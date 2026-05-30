@@ -13,7 +13,7 @@ import {
 	removeLettersFromGuess,
 	splitGuessForDisplay,
 } from "./hidden-input";
-import { getOrCreateLevelSeed, rollLevelSeed, SSR_FALLBACK_SEED } from "./seed";
+import { rollLevelSeed, SSR_FALLBACK_SEED } from "./seed";
 import { rowRevealDurationMs } from "./timing";
 import type {
 	GameMessage,
@@ -107,7 +107,7 @@ export function useWordleGame(level: LevelConfig) {
 	);
 
 	useEffect(() => {
-		const gameSeed = getOrCreateLevelSeed(level.id);
+		const gameSeed = rollLevelSeed(level.id);
 		setSeed(gameSeed);
 		initGame(answers, gameSeed);
 	}, [initGame, answers, level.id]);
