@@ -1,7 +1,13 @@
 export const WORD_LENGTH = 5;
 export const MAX_GUESSES = 6;
 
-export type LetterState = "empty" | "tbd" | "correct" | "present" | "absent";
+export type LetterState =
+	| "empty"
+	| "tbd"
+	| "correct"
+	| "present"
+	| "absent"
+	| "decoy";
 
 export type GameStatus = "playing" | "won" | "lost";
 
@@ -27,6 +33,8 @@ export type LevelConfig = {
 	evaluateGuess: (guess: string, answer: string) => LetterState[];
 	/** Optional filter on whether a guess is allowed. */
 	isGuessValid?: (guess: string, allowedWords: Set<string>) => boolean;
+	/** One random column from the first guess stays blue (decoy) every row. */
+	blueHerring?: boolean;
 };
 
 export type GameMessage =

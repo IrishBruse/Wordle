@@ -43,7 +43,9 @@ function readCompletions(): Record<number, LevelCompletionStatus> {
 	}
 }
 
-function writeCompletions(completions: Record<number, LevelCompletionStatus>): void {
+function writeCompletions(
+	completions: Record<number, LevelCompletionStatus>,
+): void {
 	window.localStorage.setItem(COMPLETIONS_KEY, JSON.stringify(completions));
 }
 

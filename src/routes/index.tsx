@@ -1,14 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { HomeDebugPanel } from "#/components/wordle/HomeDebugPanel";
-import {
-	isLevelUnlocked,
-	type LevelCompletionStatus,
-} from "#/game/progress";
+import type { LevelCompletionStatus } from "#/game/progress";
+import type { LevelConfig } from "#/game/types";
 import {
 	useHasFinishedFirstPuzzle,
+	useIsLevelUnlocked,
 	useLevelCompletion,
 } from "#/game/useProgress";
-import type { LevelConfig } from "#/game/types";
 import { getNumberedLevels } from "#/levels";
 
 export const Route = createFileRoute("/")({ component: Home });
@@ -34,7 +32,7 @@ function levelAriaLabel(
 }
 
 function LevelBox({ level }: { level: LevelConfig }) {
-	const unlocked = isLevelUnlocked(level.id);
+	const unlocked = useIsLevelUnlocked(level.id);
 	const completion = useLevelCompletion(level.id);
 	const className = levelBoxClass(unlocked, completion);
 

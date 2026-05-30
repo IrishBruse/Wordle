@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getNextLevel } from "#/levels";
+import { markLevelWon, unlockLevel } from "#/game/progress";
+import { useIsLevelUnlocked } from "#/game/useProgress";
 import { encodeSeed } from "#/game/seed";
-import { isLevelUnlocked, markLevelWon, unlockLevel } from "#/game/progress";
 import type { LevelConfig } from "#/game/types";
 import { useWordleGame } from "#/game/useWordleGame";
+import { getNextLevel } from "#/levels";
 import { Board } from "./Board";
 import { DevAnswerBanner } from "./DevAnswerBanner";
 import { Keyboard } from "./Keyboard";
@@ -36,7 +37,9 @@ export function Game({ level }: GameProps) {
 	const unlockedNextRef = useRef(false);
 	const recordedWinRef = useRef(false);
 	const nextLevel = getNextLevel(level.id);
+	const nextLevelUnlocked = useIsLevelUnlocked(nextLevel?.id ?? -1);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: reset hint when switching levels
 	useEffect(() => {
 		setHintRevealed(false);
 	}, [level.id]);
@@ -144,11 +147,7 @@ export function Game({ level }: GameProps) {
 
 			<Message message={message} />
 
-			<Board
-				rows={board}
-				revealingRow={revealingRow}
-				shakeRow={shakeRow}
-			/>
+			<Board rows={board} revealingRow={revealingRow} shakeRow={shakeRow} />
 			{status !== "playing" ? (
 				<div className="game-end">
 					<p>
@@ -168,7 +167,7 @@ export function Game({ level }: GameProps) {
 						{status === "won" &&
 						level.id !== 0 &&
 						nextLevel &&
-						isLevelUnlocked(nextLevel.id) ? (
+						nextLevelUnlocked ? (
 							<Link
 								to="/play/$levelId"
 								params={{ levelId: String(nextLevel.id) }}

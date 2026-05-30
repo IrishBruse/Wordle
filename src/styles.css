@@ -8,6 +8,7 @@
   --color-correct: #538d4e;
   --color-present: #b59f3b;
   --color-absent: #3a3a3c;
+  --color-decoy: #4a7ebf;
   --color-text: #ffffff;
   --tile-size: 62px;
   --tile-gap: 5px;
@@ -442,6 +443,12 @@ a {
 .tile-face.tile-absent {
   background: var(--color-absent);
   border-color: var(--color-absent);
+  color: #fff;
+}
+
+.tile-face.tile-decoy {
+  background: var(--color-decoy);
+  border-color: var(--color-decoy);
   color: #fff;
 }
 

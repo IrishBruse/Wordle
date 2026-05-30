@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { applyBlueHerring, pickDecoyColumn } from "./blue-herring";
 import { mergeLetterStates } from "./evaluate";
+import { getOrCreateLevelSeed, rollLevelSeed, SSR_FALLBACK_SEED } from "./seed";
+import { rowRevealDurationMs } from "./timing";
 import type {
 	GameMessage,
 	GameStatus,
@@ -7,12 +10,6 @@ import type {
 	LevelConfig,
 	TileData,
 } from "./types";
-import {
-	SSR_FALLBACK_SEED,
-	getOrCreateLevelSeed,
-	rollLevelSeed,
-} from "./seed";
-import { rowRevealDurationMs } from "./timing";
 import { getWordLists } from "./words";
 
 function emptyRow(length: number): TileData[] {
@@ -37,6 +34,7 @@ export function useWordleGame(level: LevelConfig) {
 	const [status, setStatus] = useState<GameStatus>("playing");
 	const [message, setMessage] = useState<GameMessage>({ type: "none" });
 	const [revealingRow, setRevealingRow] = useState<number | null>(null);
+	const [decoyColumn, setDecoyColumn] = useState<number | null>(null);
 
 	const initGame = useCallback(
 		(pool: string[], gameSeed: number) => {
@@ -47,6 +45,7 @@ export function useWordleGame(level: LevelConfig) {
 			setStatus("playing");
 			setMessage({ type: "none" });
 			setRevealingRow(null);
+			setDecoyColumn(null);
 		},
 		[level],
 	);
@@ -68,15 +67,21 @@ export function useWordleGame(level: LevelConfig) {
 	const keyboardState = useMemo(() => {
 		const map = new Map<string, LetterState>();
 		for (let row = 0; row < currentRow; row++) {
-			const tiles = board[row];
-			for (const tile of tiles) {
-				if (!tile.letter) continue;
-				const key = tile.letter.toUpperCase();
-				map.set(key, mergeLetterStates(map.get(key), tile.state));
+			const guess = board[row]
+				.map((tile) => tile.letter)
+				.join("")
+				.toLowerCase();
+			if (guess.length !== level.wordLength) continue;
+			const scores = level.evaluateGuess(guess, answer);
+			for (let i = 0; i < level.wordLength; i++) {
+				const letter = board[row][i].letter;
+				if (!letter) continue;
+				const key = letter.toUpperCase();
+				map.set(key, mergeLetterStates(map.get(key), scores[i]));
 			}
 		}
 		return map;
-	}, [board, currentRow]);
+	}, [answer, board, currentRow, level]);
 
 	const showMessage = useCallback((next: GameMessage) => {
 		setMessage(next);
@@ -142,8 +147,19 @@ export function useWordleGame(level: LevelConfig) {
 			return;
 		}
 
-		const scores = level.evaluateGuess(guess, answer);
+		const trueScores = level.evaluateGuess(guess, answer);
 		const rowIndex = currentRow;
+
+		let column = decoyColumn;
+		if (level.blueHerring && column === null && rowIndex === 0) {
+			column = pickDecoyColumn(level.wordLength);
+			setDecoyColumn(column);
+		}
+
+		const displayScores =
+			level.blueHerring && column !== null
+				? applyBlueHerring(trueScores, column)
+				: trueScores;
 
 		setRevealingRow(rowIndex);
 		setBoard((prev) => {
@@ -151,7 +167,7 @@ export function useWordleGame(level: LevelConfig) {
 			for (let i = 0; i < level.wordLength; i++) {
 				next[rowIndex][i] = {
 					letter: guess[i].toUpperCase(),
-					state: scores[i],
+					state: displayScores[i],
 				};
 			}
 			return next;
@@ -179,6 +195,7 @@ export function useWordleGame(level: LevelConfig) {
 		allowed,
 		currentGuess,
 		currentRow,
+		decoyColumn,
 		level,
 		revealingRow,
 		showMessage,
@@ -190,7 +207,7 @@ export function useWordleGame(level: LevelConfig) {
 		const gameSeed = status === "lost" ? seed : rollLevelSeed(level.id);
 		if (status !== "lost") setSeed(gameSeed);
 		initGame(answers, gameSeed);
-	}, [answers, initGame, seed, status]);
+	}, [answers, initGame, level.id, seed, status]);
 
 	return {
 		board,

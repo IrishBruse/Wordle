@@ -15,12 +15,11 @@ const stateClass: Record<LetterState, string> = {
 	correct: "tile-correct",
 	present: "tile-present",
 	absent: "tile-absent",
+	decoy: "tile-decoy",
 };
 
 export function Tile({ letter, state, animate, delayMs = 0 }: TileProps) {
-	const isFlipping = Boolean(
-		animate && state !== "empty" && state !== "tbd",
-	);
+	const isFlipping = Boolean(animate && state !== "empty" && state !== "tbd");
 	const frontState: LetterState = isFlipping ? "tbd" : state;
 
 	const flipStyle = isFlipping

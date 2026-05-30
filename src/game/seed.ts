@@ -4,8 +4,7 @@ const STORAGE_PREFIX = "wordle-seed-";
 
 /** Stable initial seed for SSR and the first client render (before localStorage sync). */
 export const SSR_FALLBACK_SEED = 1;
-const BASE62 =
-	"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /** Compact alphanumeric code for display and storage (0-9, a-z, A-Z). */
 export function encodeSeed(seed: number): string {

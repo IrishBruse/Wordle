@@ -3,8 +3,9 @@ import {
 	getLevelCompletion,
 	getMaxUnlockedLevel,
 	hasFinishedFirstPuzzle,
-	subscribeProgress,
+	isLevelUnlocked,
 	type LevelCompletionStatus,
+	subscribeProgress,
 } from "./progress";
 
 export function useHasFinishedFirstPuzzle(): boolean {
@@ -26,9 +27,13 @@ export function useLevelCompletion(
 }
 
 export function useMaxUnlockedLevel(): number {
+	return useSyncExternalStore(subscribeProgress, getMaxUnlockedLevel, () => 0);
+}
+
+export function useIsLevelUnlocked(levelId: number): boolean {
 	return useSyncExternalStore(
 		subscribeProgress,
-		getMaxUnlockedLevel,
-		() => 0,
+		() => isLevelUnlocked(levelId),
+		() => levelId === 0,
 	);
 }

@@ -1,4 +1,4 @@
-import { type LetterState } from "./types";
+import type { LetterState } from "./types";
 
 /** Standard Wordle scoring (handles duplicate letters correctly). */
 export function evaluateGuess(guess: string, answer: string): LetterState[] {
@@ -31,6 +31,7 @@ export function evaluateGuess(guess: string, answer: string): LetterState[] {
 const STATE_RANK: Record<LetterState, number> = {
 	empty: 0,
 	tbd: 0,
+	decoy: 0,
 	absent: 1,
 	present: 2,
 	correct: 3,

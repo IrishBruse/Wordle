@@ -1,12 +1,12 @@
-import { isLocalhost } from "#/game/dev";
+import { useIsLocalhost } from "#/game/dev";
 import {
 	clearAllGameStorage,
 	clearCompletions,
 	clearProgress,
 	clearStoredSeeds,
+	debugFinishLevelZero,
 	getLevelCompletion,
 	setLevelCompletion,
-	debugFinishLevelZero,
 	setMaxUnlockedLevel,
 } from "#/game/progress";
 import { useMaxUnlockedLevel } from "#/game/useProgress";
@@ -28,8 +28,9 @@ function DebugButton({
 
 export function HomeDebugPanel() {
 	const maxUnlocked = useMaxUnlockedLevel();
+	const isDev = useIsLocalhost();
 
-	if (!isLocalhost()) return null;
+	if (!isDev) return null;
 
 	const levels = getNumberedLevels();
 	const maxLevelId = levels.at(-1)?.id ?? 0;
@@ -75,6 +76,11 @@ export function HomeDebugPanel() {
 					<DebugButton onClick={() => setMaxUnlockedLevel(1)}>
 						Post-tutorial
 					</DebugButton>
+					{maxLevelId >= 2 ? (
+						<DebugButton onClick={() => setMaxUnlockedLevel(2)}>
+							Post level 1
+						</DebugButton>
+					) : null}
 					<DebugButton onClick={() => debugFinishLevelZero()}>
 						Finish level 0
 					</DebugButton>
@@ -97,14 +103,10 @@ export function HomeDebugPanel() {
 							>
 								Green
 							</DebugButton>
-							<DebugButton
-								onClick={() => setLevelCompletion(level.id, "hint")}
-							>
+							<DebugButton onClick={() => setLevelCompletion(level.id, "hint")}>
 								Yellow
 							</DebugButton>
-							<DebugButton
-								onClick={() => setLevelCompletion(level.id, null)}
-							>
+							<DebugButton onClick={() => setLevelCompletion(level.id, null)}>
 								Clear
 							</DebugButton>
 						</span>

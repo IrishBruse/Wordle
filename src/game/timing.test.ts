@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
 	ROW_REVEAL_BUFFER_MS,
+	rowRevealDurationMs,
 	TILE_FLIP_MS,
 	TILE_FLIP_STAGGER_MS,
-	rowRevealDurationMs,
 } from "./timing";
 
 describe("rowRevealDurationMs", () => {

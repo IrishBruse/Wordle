@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { Game } from "#/components/wordle/Game";
-import { isLevelUnlocked } from "#/game/progress";
+import { useIsLevelUnlocked } from "#/game/useProgress";
 import { getLevel } from "#/levels";
 
 export const Route = createFileRoute("/play/$levelId")({
@@ -11,6 +11,7 @@ function PlayLevel() {
 	const { levelId } = Route.useParams();
 	const id = Number.parseInt(levelId, 10);
 	const level = getLevel(id);
+	const unlocked = useIsLevelUnlocked(id);
 
 	if (!level) {
 		return (
@@ -21,7 +22,7 @@ function PlayLevel() {
 		);
 	}
 
-	if (!isLevelUnlocked(id)) {
+	if (!unlocked) {
 		return <Navigate to="/play" />;
 	}
 
