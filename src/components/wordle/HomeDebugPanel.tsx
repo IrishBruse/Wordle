@@ -1,4 +1,4 @@
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { type ReactNode, useMemo, useState, useSyncExternalStore } from "react";
 import { useIsLocalhost } from "#/game/dev";
 import {
 	formatMutationChange,
@@ -36,8 +36,32 @@ function DebugButton({
 	);
 }
 
+function DebugSection({
+	title,
+	children,
+}: {
+	title: string;
+	children: ReactNode;
+}) {
+	return (
+		<section className="home-debug-section">
+			<h3 className="home-debug-section-title">{title}</h3>
+			{children}
+		</section>
+	);
+}
+
+function DebugMetric({ label, value }: { label: string; value: ReactNode }) {
+	return (
+		<div className="home-debug-metric">
+			<span className="home-debug-metric-label">{label}</span>
+			<span className="home-debug-metric-value">{value}</span>
+		</div>
+	);
+}
+
 function SeedLookup() {
-	const [seedCode, setSeedCode] = useState("");
+	const [seedCode, setSeedCode] = useState("0001");
 	const [levelId, setLevelId] = useState("0");
 	const { answers, allowed } = useMemo(() => getWordLists(), []);
 	const lookup = useMemo(() => {
@@ -64,35 +88,39 @@ function SeedLookup() {
 	}
 
 	return (
-		<div className="home-debug-group">
-			<label className="home-debug-label" htmlFor="home-debug-seed-level">
-				Level for seed lookup
-			</label>
-			<select
-				id="home-debug-seed-level"
-				className="home-debug-input home-debug-select"
-				value={levelId}
-				onChange={(event) => setLevelId(event.target.value)}
-			>
-				<option value="0">0-3 (word pool)</option>
-				<option value="6">6 (almost)</option>
-				<option value="7">7 (symbols)</option>
-			</select>
-			<label className="home-debug-label" htmlFor="home-debug-seed">
-				Seed to answer
-			</label>
-			<input
-				id="home-debug-seed"
-				className="home-debug-input"
-				type="text"
-				value={seedCode}
-				onChange={(event) => setSeedCode(event.target.value)}
-				placeholder="0001"
-				spellCheck={false}
-				autoCapitalize="off"
-				autoComplete="off"
-				maxLength={4}
-			/>
+		<div className="home-debug-lookup">
+			<div className="home-debug-field">
+				<label className="home-debug-label" htmlFor="home-debug-seed-level">
+					Level
+				</label>
+				<select
+					id="home-debug-seed-level"
+					className="home-debug-input home-debug-select"
+					value={levelId}
+					onChange={(event) => setLevelId(event.target.value)}
+				>
+					<option value="0">0-3 word pool</option>
+					<option value="6">6 almost</option>
+					<option value="7">7 symbols</option>
+				</select>
+			</div>
+			<div className="home-debug-field home-debug-seed-field">
+				<label className="home-debug-label" htmlFor="home-debug-seed">
+					Seed
+				</label>
+				<input
+					id="home-debug-seed"
+					className="home-debug-input"
+					type="text"
+					value={seedCode}
+					onChange={(event) => setSeedCode(event.target.value)}
+					placeholder="0001"
+					spellCheck={false}
+					autoCapitalize="off"
+					autoComplete="off"
+					maxLength={4}
+				/>
+			</div>
 			<p className="home-debug-seed-result" aria-live="polite">
 				{result}
 			</p>
@@ -113,6 +141,9 @@ export function HomeDebugPanel() {
 
 	const levels = getNumberedLevels();
 	const maxLevelId = levels.at(-1)?.id ?? 0;
+	const completedCount = levels.filter((level) =>
+		getLevelCompletion(level.id),
+	).length;
 	const completionSummary = levels
 		.map((level) => {
 			const status = getLevelCompletion(level.id);
@@ -123,29 +154,47 @@ export function HomeDebugPanel() {
 
 	return (
 		<aside className="home-debug" aria-label="Development progress controls">
-			<p className="home-debug-title">Debug</p>
-			<p className="home-debug-state">
-				Max unlocked: {maxUnlocked} | Completions: {completionSummary || "none"}
-			</p>
-
-			<SeedLookup />
-
-			<div className="home-debug-group">
-				<p className="home-debug-label">Local storage</p>
-				<dl className="home-debug-storage">
-					{storageEntries.map(({ key, value }) => (
-						<div key={key} className="home-debug-storage-row">
-							<dt className="home-debug-storage-key">{key}</dt>
-							<dd className="home-debug-storage-value">
-								{value ?? "(not set)"}
-							</dd>
-						</div>
-					))}
-				</dl>
+			<div className="home-debug-header">
+				<p className="home-debug-title">Debug</p>
+				<p className="home-debug-subtitle">Local development controls</p>
+			</div>
+			<div className="home-debug-state">
+				<DebugMetric label="Max unlocked" value={maxUnlocked} />
+				<DebugMetric
+					label="Completed"
+					value={`${completedCount}/${levels.length}`}
+				/>
+				<DebugMetric
+					label="Completion map"
+					value={completionSummary || "none"}
+				/>
 			</div>
 
-			<div className="home-debug-group">
-				<p className="home-debug-label">Clear</p>
+			<DebugSection title="Seed lookup">
+				<SeedLookup />
+			</DebugSection>
+
+			<DebugSection title="Local storage">
+				<dl className="home-debug-storage">
+					{storageEntries.length === 0 ? (
+						<div className="home-debug-storage-row">
+							<dt className="home-debug-storage-key">No Wordle data</dt>
+							<dd className="home-debug-storage-value">(not set)</dd>
+						</div>
+					) : (
+						storageEntries.map(({ key, value }) => (
+							<div key={key} className="home-debug-storage-row">
+								<dt className="home-debug-storage-key">{key}</dt>
+								<dd className="home-debug-storage-value">
+									{value ?? "(not set)"}
+								</dd>
+							</div>
+						))
+					)}
+				</dl>
+			</DebugSection>
+
+			<DebugSection title="Clear data">
 				<div className="home-debug-actions">
 					<DebugButton onClick={() => clearProgress()}>
 						Clear progress
@@ -160,10 +209,9 @@ export function HomeDebugPanel() {
 						Clear all
 					</DebugButton>
 				</div>
-			</div>
+			</DebugSection>
 
-			<div className="home-debug-group">
-				<p className="home-debug-label">Unlock</p>
+			<DebugSection title="Unlock presets">
 				<div className="home-debug-actions">
 					<DebugButton onClick={() => setMaxUnlockedLevel(0)}>
 						Fresh (Play only)
@@ -185,26 +233,32 @@ export function HomeDebugPanel() {
 						</DebugButton>
 					) : null}
 				</div>
-			</div>
+			</DebugSection>
 
-			<div className="home-debug-group">
-				<p className="home-debug-label">Set completion</p>
-				<div className="home-debug-actions">
+			<DebugSection title="Set completion">
+				<div className="home-debug-completion-grid">
 					{levels.map((level) => (
-						<span key={level.id} className="home-debug-level-set">
-							<span className="home-debug-level-id">L{level.id}</span>
-							<DebugButton
-								onClick={() => setLevelCompletion(level.id, "clean")}
-							>
-								Done
-							</DebugButton>
-							<DebugButton onClick={() => setLevelCompletion(level.id, null)}>
-								Clear
-							</DebugButton>
-						</span>
+						<div key={level.id} className="home-debug-level-set">
+							<div className="home-debug-level-row">
+								<span className="home-debug-level-id">L{level.id}</span>
+								<span className="home-debug-level-status">
+									{getLevelCompletion(level.id) ?? "open"}
+								</span>
+							</div>
+							<div className="home-debug-level-actions">
+								<DebugButton
+									onClick={() => setLevelCompletion(level.id, "clean")}
+								>
+									Done
+								</DebugButton>
+								<DebugButton onClick={() => setLevelCompletion(level.id, null)}>
+									Clear
+								</DebugButton>
+							</div>
+						</div>
 					))}
 				</div>
-			</div>
+			</DebugSection>
 		</aside>
 	);
 }

@@ -123,13 +123,23 @@ a {
 
 .home-debug {
   margin-top: 2.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px dashed #3a3a3c;
+  padding: 1rem;
+  border: 1px solid #2f3031;
+  border-radius: 12px;
+  background: #171718;
   text-align: left;
 }
 
+.home-debug-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
 .home-debug-title {
-  margin: 0 0 0.5rem;
+  margin: 0;
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -137,12 +147,65 @@ a {
   color: #818384;
 }
 
+.home-debug-subtitle {
+  margin: 0;
+  font-size: 0.7rem;
+  color: #818384;
+}
+
 .home-debug-state {
-  margin: 0 0 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.home-debug-metric {
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid #2f3031;
+  border-radius: 8px;
+  background: #121213;
+}
+
+.home-debug-metric:last-child {
+  grid-column: 1 / -1;
+}
+
+.home-debug-metric-label {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 0.65rem;
+  color: #818384;
+}
+
+.home-debug-metric-value {
+  display: block;
   font-size: 0.75rem;
   line-height: 1.4;
-  color: #a0a0a0;
+  color: #d7dadc;
   word-break: break-word;
+}
+
+.home-debug-section {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #2f3031;
+  border-radius: 10px;
+  background: #121213;
+}
+
+.home-debug-section:last-child {
+  margin-bottom: 0;
+}
+
+.home-debug-section-title {
+  margin: 0 0 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #a0a0a0;
 }
 
 .home-debug-storage {
@@ -153,13 +216,15 @@ a {
 
 .home-debug-storage-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 0.8fr);
   gap: 0.5rem;
-  margin: 0 0 0.35rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #252526;
 }
 
 .home-debug-storage-row:last-child {
-  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
 }
 
 .home-debug-storage-key,
@@ -177,46 +242,89 @@ a {
   font-family: ui-monospace, monospace;
 }
 
-.home-debug-group {
-  margin-bottom: 1rem;
-}
-
-.home-debug-group:last-child {
-  margin-bottom: 0;
-}
-
 .home-debug-label {
   margin: 0 0 0.35rem;
   font-size: 0.7rem;
   color: #818384;
 }
 
+.home-debug-lookup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 5.75rem;
+  align-items: end;
+  gap: 0.5rem;
+}
+
+.home-debug-field {
+  min-width: 0;
+}
+
+.home-debug-seed-field {
+  width: 5.75rem;
+}
+
 .home-debug-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.4rem;
+}
+
+.home-debug-completion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
 }
 
 .home-debug-level-set {
+  min-width: 0;
+  padding: 0.45rem;
+  border: 1px solid #2f3031;
+  border-radius: 8px;
+  background: #171718;
+}
+
+.home-debug-level-row {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.35rem;
-  width: 100%;
-  margin-bottom: 0.35rem;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .home-debug-level-id {
-  min-width: 1.5rem;
   font-size: 0.7rem;
   font-weight: 700;
+  color: #d7dadc;
+}
+
+.home-debug-level-status {
+  overflow: hidden;
+  color: #818384;
+  font-family: ui-monospace, monospace;
+  font-size: 0.65rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.home-debug-level-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.home-debug-level-actions .home-debug-btn {
+  flex: 1;
+  min-width: 0;
+  padding-inline: 0.25rem;
+}
+
+.home-debug-level-actions .home-debug-btn:last-child {
   color: #a0a0a0;
 }
 
 .home-debug-btn {
-  padding: 0.25rem 0.5rem;
+  padding: 0.35rem 0.55rem;
   border: 1px solid #3a3a3c;
-  border-radius: 4px;
+  border-radius: 6px;
   background: #1a1a1b;
   color: #d7dadc;
   font-family: inherit;
@@ -231,11 +339,11 @@ a {
 
 .home-debug-input {
   display: block;
-  width: 5rem;
-  margin-bottom: 0.35rem;
+  width: 100%;
+  margin: 0;
   padding: 0.35rem 0.5rem;
   border: 1px solid #3a3a3c;
-  border-radius: 4px;
+  border-radius: 6px;
   background: #1a1a1b;
   color: #d7dadc;
   font-family: ui-monospace, monospace;
@@ -250,17 +358,36 @@ a {
 
 .home-debug-select {
   width: 100%;
-  max-width: 14rem;
   font-family: inherit;
   letter-spacing: normal;
 }
 
 .home-debug-seed-result {
-  margin: 0;
+  grid-column: 1 / -1;
+  margin: 0.15rem 0 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  background: #1a1a1b;
   font-family: ui-monospace, monospace;
   font-size: 0.85rem;
   font-weight: 700;
   color: #d7dadc;
+}
+
+@media (max-width: 360px) {
+  .home-debug {
+    padding-inline: 0.75rem;
+  }
+
+  .home-debug-state,
+  .home-debug-lookup,
+  .home-debug-completion-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-debug-seed-field {
+    width: 100%;
+  }
 }
 
 /* Game shell */
