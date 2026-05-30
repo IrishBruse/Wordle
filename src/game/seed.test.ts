@@ -1,11 +1,33 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	answerForEncodedSeed,
+	consumeLevelSeed,
 	createSeededRng,
 	decodeSeed,
 	encodeSeed,
+	FIRST_LEVEL_SEED,
 	pickAnswerForSeed,
 } from "./seed";
+
+function mockBrowserStorage() {
+	const data = new Map<string, string>();
+	const storage = {
+		getItem: (key: string) => data.get(key) ?? null,
+		setItem: (key: string, value: string) => {
+			data.set(key, value);
+		},
+		removeItem: (key: string) => {
+			data.delete(key);
+		},
+		clear: () => data.clear(),
+		key: () => null,
+		length: 0,
+	};
+	vi.stubGlobal("window", {
+		localStorage: storage,
+	});
+	return data;
+}
 
 describe("encodeSeed", () => {
 	it("round-trips a seed", () => {
@@ -59,5 +81,22 @@ describe("createSeededRng", () => {
 		const a = createSeededRng(99);
 		const b = createSeededRng(99);
 		expect([a(), a(), a()]).toEqual([b(), b(), b()]);
+	});
+});
+
+describe("consumeLevelSeed", () => {
+	beforeEach(() => mockBrowserStorage());
+	afterEach(() => vi.unstubAllGlobals());
+
+	it("starts at 0001 and increments on each consume", () => {
+		expect(consumeLevelSeed(0)).toBe(FIRST_LEVEL_SEED);
+		expect(encodeSeed(consumeLevelSeed(0))).toBe("0002");
+		expect(encodeSeed(consumeLevelSeed(0))).toBe("0003");
+	});
+
+	it("keeps a separate counter per level", () => {
+		expect(consumeLevelSeed(1)).toBe(FIRST_LEVEL_SEED);
+		expect(consumeLevelSeed(2)).toBe(FIRST_LEVEL_SEED);
+		expect(encodeSeed(consumeLevelSeed(1))).toBe("0002");
 	});
 });

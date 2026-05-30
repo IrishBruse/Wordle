@@ -24,9 +24,9 @@ Design notes for the Wordle variant in this repo. Behavior described here matche
 Each level keeps its own run seed in `localStorage` (`wordle-seed-{levelId}`).
 
 - The seed picks the secret word deterministically (Mulberry32 RNG over the answer pool).
-- The active seed is always shown at the bottom of the play screen as a four-digit code (`0000`-`9999`).
-- **Loss:** When the player uses all six guesses without winning, the game rolls a new seed immediately and shows the previous answer in the message. The displayed seed updates to the new run.
-- **New / Play again:** Starts a fresh board. If the last run ended in a loss, the seed from the loss roll is reused. Otherwise a new seed is rolled (including after a win).
+- The active seed is always shown at the bottom of the play screen as a four-digit code (`0001`-`9999`, then wraps).
+- Seeds start at `0001` per level and increment by one when you open the level (including reload or return from Home), lose, or press **New** / **Play again** after a win.
+- **Loss:** When the player uses all six guesses without winning, the seed advances immediately and the UI shows the next code. **Play again** after a loss reuses that seed without advancing again.
 
 ## Input and feedback
 
@@ -48,6 +48,6 @@ Each level keeps its own run seed in `localStorage` (`wordle-seed-{levelId}`).
 - Levels beyond id 1 (config may add more; routes and home list follow `LEVELS` in code)
 # Seeds (levels 0-3, 6-7)
 
-Levels 0-3 and 6-7 pick the secret from the answer pool (or a seed-derived variant) using a four-digit seed shown at the bottom of the screen. The seed is rerolled when you open a level (including after reload or returning from Home). **New** after a win also rerolls; **Play again** after a loss keeps the same seed until you leave or reload.
+Levels 0-3 and 6-7 pick the secret from the answer pool (or a seed-derived variant) using a four-digit seed shown at the bottom of the screen. The seed starts at `0001` and increments when you open a level (including after reload or returning from Home), lose, or press **New** after a win. **Play again** after a loss keeps the same seed until you leave or reload.
 
 Levels 4 and 5 use fixed answers and ignore the seed for word selection.

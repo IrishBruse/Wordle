@@ -117,7 +117,7 @@ This is the final numbered level.
 
 # Seeds (levels 0-3, 6-7)
 
-Levels 0-3, 6, and 7 pick the secret from the answer pool (or a seed-derived variant) using a four-digit seed shown at the bottom of the screen. The seed is rerolled when you open a level (including after reload or returning from Home). **New** after a win also rerolls; **Play again** after a loss keeps the same seed until you leave or reload.
+Levels 0-3, 6, and 7 pick the secret from the answer pool (or a seed-derived variant) using a four-digit seed shown at the bottom of the screen. The seed starts at `0001` and increments when you open a level (including after reload or returning from Home), lose, or press **New** after a win. **Play again** after a loss keeps the same seed until you leave or reload.
 
 Levels 4 and 5 use fixed answers and ignore the seed for word selection.
 

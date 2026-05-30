@@ -13,7 +13,7 @@ import {
 	removeLettersFromGuess,
 	splitGuessForDisplay,
 } from "./hidden-input";
-import { rollLevelSeed, SSR_FALLBACK_SEED } from "./seed";
+import { consumeLevelSeed, SSR_FALLBACK_SEED } from "./seed";
 import { rowRevealDurationMs } from "./timing";
 import type {
 	GameMessage,
@@ -107,7 +107,7 @@ export function useWordleGame(level: LevelConfig) {
 	);
 
 	useEffect(() => {
-		const gameSeed = rollLevelSeed(level.id);
+		const gameSeed = consumeLevelSeed(level.id);
 		setSeed(gameSeed);
 		initGame(answers, gameSeed);
 	}, [initGame, answers, level.id]);
@@ -380,7 +380,7 @@ export function useWordleGame(level: LevelConfig) {
 			}
 			if (rowIndex + 1 >= level.maxGuesses) {
 				setStatus("lost");
-				setSeed(rollLevelSeed(level.id));
+				setSeed(consumeLevelSeed(level.id));
 				showMessage({
 					type: "lost",
 					answer: hasHiddenInput
@@ -413,7 +413,7 @@ export function useWordleGame(level: LevelConfig) {
 
 	const restart = useCallback(() => {
 		if (answers.length === 0) return;
-		const gameSeed = status === "lost" ? seed : rollLevelSeed(level.id);
+		const gameSeed = status === "lost" ? seed : consumeLevelSeed(level.id);
 		if (status !== "lost") setSeed(gameSeed);
 		initGame(answers, gameSeed);
 	}, [answers, initGame, level.id, seed, status]);

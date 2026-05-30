@@ -2,8 +2,11 @@ import type { LevelId } from "./types";
 
 const STORAGE_PREFIX = "wordle-seed-";
 
+/** First seed shown for a level (0001). */
+export const FIRST_LEVEL_SEED = 1;
+
 /** Stable initial seed for SSR and the first client render (before localStorage sync). */
-export const SSR_FALLBACK_SEED = 1;
+export const SSR_FALLBACK_SEED = FIRST_LEVEL_SEED;
 
 const SEED_CODE_LENGTH = 4;
 const MAX_SEED = 10 ** SEED_CODE_LENGTH;
@@ -32,8 +35,11 @@ function storageKey(levelId: LevelId): string {
 	return `${STORAGE_PREFIX}${levelId}`;
 }
 
-function randomSeed(): number {
-	return Math.floor(Math.random() * MAX_SEED) >>> 0;
+function readStoredNextSeed(levelId: LevelId): number {
+	const raw = window.localStorage.getItem(storageKey(levelId));
+	if (raw === null) return FIRST_LEVEL_SEED;
+	const parsed = decodeSeed(raw);
+	return parsed ?? FIRST_LEVEL_SEED;
 }
 
 /** Mulberry32 PRNG; same seed yields the same sequence. */
@@ -67,10 +73,13 @@ export function answerForEncodedSeed(
 	return pickAnswerForSeed(words, seed);
 }
 
-/** Assign a new random seed when starting or re-entering a level. */
-export function rollLevelSeed(levelId: LevelId): number {
+/**
+ * Use the level's next seed and advance storage (0001, 0002, ...).
+ * Call when entering a level, on loss, or when starting a new run after a win.
+ */
+export function consumeLevelSeed(levelId: LevelId): number {
 	if (typeof window === "undefined") return SSR_FALLBACK_SEED;
-	const seed = randomSeed();
-	writeStoredSeed(levelId, seed);
+	const seed = readStoredNextSeed(levelId);
+	writeStoredSeed(levelId, normalizeSeed(seed + 1));
 	return seed;
 }

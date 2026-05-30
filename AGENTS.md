@@ -22,5 +22,6 @@ Do not mark a task complete until `npm verify` exits successfully.
 | Command | Purpose |
 |---------|---------|
 | `npm dev` | Local dev server (port 3000) |
+| `npm typecheck` | TypeScript (`tsc --noEmit`) |
 | `npm check` | Biome on all configured paths (includes `.vscode/`) |
 | `npm format` | Apply Biome formatting |
