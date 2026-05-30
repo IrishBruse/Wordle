@@ -1,5 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { applyBlueHerring, pickDecoyColumn } from "./blue-herring";
+import {
+	rotateWordLeft,
+	shouldAdvanceConveyor,
+} from "./conveyor-belt";
 import { mergeLetterStates } from "./evaluate";
 import { getOrCreateLevelSeed, rollLevelSeed, SSR_FALLBACK_SEED } from "./seed";
 import { rowRevealDurationMs } from "./timing";
@@ -26,6 +30,11 @@ export function useWordleGame(level: LevelConfig) {
 	const [allowed] = useState(() => ALLOWED_WORDS);
 	const [answers] = useState(() => ANSWER_POOL);
 	const [answer, setAnswer] = useState("");
+	const [baseAnswer, setBaseAnswer] = useState("");
+	const answerRef = useRef(answer);
+	const baseAnswerRef = useRef(baseAnswer);
+	answerRef.current = answer;
+	baseAnswerRef.current = baseAnswer;
 	const [seed, setSeed] = useState(SSR_FALLBACK_SEED);
 	const [board, setBoard] = useState<TileData[][]>(() =>
 		createBoard(level.maxGuesses, level.wordLength),
@@ -40,6 +49,7 @@ export function useWordleGame(level: LevelConfig) {
 		(pool: string[], gameSeed: number) => {
 			const secret = level.pickAnswer(pool, gameSeed);
 			setAnswer(secret);
+			setBaseAnswer(secret);
 			setBoard(createBoard(level.maxGuesses, level.wordLength));
 			setCurrentRow(0);
 			setStatus("playing");
@@ -223,7 +233,9 @@ export function useWordleGame(level: LevelConfig) {
 		const revealMs = rowRevealDurationMs(level.wordLength);
 		window.setTimeout(() => {
 			setRevealingRow(null);
-			const won = guess === answer;
+			const won = level.conveyorBelt
+				? guess === baseAnswerRef.current
+				: guess === answerRef.current;
 			if (won) {
 				setStatus("won");
 				showMessage({ type: "won", guesses: rowIndex + 1 });
@@ -232,8 +244,16 @@ export function useWordleGame(level: LevelConfig) {
 			if (rowIndex + 1 >= level.maxGuesses) {
 				setStatus("lost");
 				setSeed(rollLevelSeed(level.id));
-				showMessage({ type: "lost", answer });
+				showMessage({
+					type: "lost",
+					answer: level.conveyorBelt
+						? baseAnswerRef.current
+						: answerRef.current,
+				});
 				return;
+			}
+			if (level.conveyorBelt && shouldAdvanceConveyor(trueScores)) {
+				setAnswer((current) => rotateWordLeft(current));
 			}
 			setCurrentRow(rowIndex + 1);
 		}, revealMs);
@@ -270,6 +290,6 @@ export function useWordleGame(level: LevelConfig) {
 		clearGuess,
 		submitGuess,
 		restart,
-		answer,
+		answer: level.conveyorBelt ? baseAnswer : answer,
 	};
 }

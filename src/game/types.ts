@@ -35,6 +35,8 @@ export type LevelConfig = {
 	isGuessValid?: (guess: string, allowedWords: Set<string>) => boolean;
 	/** First guess picks a herring letter (from one column) that stays blue every row. */
 	blueHerring?: boolean;
+	/** Scoring target rotates left after greens; win when the original word is guessed. */
+	conveyorBelt?: boolean;
 };
 
 export type GameMessage =

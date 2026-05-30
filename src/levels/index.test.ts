@@ -9,7 +9,7 @@ import {
 
 describe("levels registry", () => {
 	it("lists tutorial then numbered levels in order", () => {
-		expect(LEVELS.map((l) => l.id)).toEqual([0, 1, 2]);
+		expect(LEVELS.map((l) => l.id)).toEqual([0, 1, 2, 3]);
 	});
 
 	it("returns the tutorial as level 0", () => {
@@ -29,6 +29,7 @@ describe("levels registry", () => {
 	it("getNextLevel returns the following puzzle", () => {
 		expect(getNextLevel(0)?.id).toBe(1);
 		expect(getNextLevel(1)?.id).toBe(2);
-		expect(getNextLevel(2)).toBeUndefined();
+		expect(getNextLevel(2)?.id).toBe(3);
+		expect(getNextLevel(3)).toBeUndefined();
 	});
 });

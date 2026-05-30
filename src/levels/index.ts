@@ -2,8 +2,9 @@ import type { LevelConfig } from "#/game/types";
 import { level0 } from "./0";
 import { level1 } from "./1";
 import { level2 } from "./2";
+import { level3 } from "./3";
 
-export const LEVELS: LevelConfig[] = [level0, level1, level2];
+export const LEVELS: LevelConfig[] = [level0, level1, level2, level3];
 
 export function getTutorialLevel(): LevelConfig {
 	return LEVELS[0];

@@ -1,4 +1,8 @@
 import { applyBlueHerring, pickDecoyColumn } from "./blue-herring";
+import {
+	rotateWordLeft,
+	shouldAdvanceConveyor,
+} from "./conveyor-belt";
 import type { LetterState, LevelConfig } from "./types";
 
 export type ScoreGuessOptions = {
@@ -35,18 +39,20 @@ export function scoreGuessForLevel(
 /** Run a sequence of guesses and return displayed tile states per row. */
 export function simulatePlaythrough(
 	level: LevelConfig,
-	answer: string,
+	initialAnswer: string,
 	guesses: string[],
 	options?: ScoreGuessOptions,
 ): LetterState[][] {
 	let decoyColumn: number | null = options?.fixedDecoyColumn ?? null;
 	let decoyLetter: string | null = null;
+	let target = initialAnswer;
 	const rows: LetterState[][] = [];
 	for (let i = 0; i < guesses.length; i++) {
+		const guess = guesses[i];
 		const result = scoreGuessForLevel(
 			level,
-			guesses[i],
-			answer,
+			guess,
+			target,
 			i,
 			decoyColumn,
 			decoyLetter,
@@ -55,6 +61,13 @@ export function simulatePlaythrough(
 		rows.push(result.scores);
 		decoyColumn = result.decoyColumn;
 		decoyLetter = result.decoyLetter;
+
+		if (!level.conveyorBelt) continue;
+
+		const won = guess === initialAnswer;
+		if (won || !shouldAdvanceConveyor(result.scores)) continue;
+
+		target = rotateWordLeft(target);
 	}
 	return rows;
 }
