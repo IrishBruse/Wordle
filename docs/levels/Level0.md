@@ -1,10 +1,12 @@
-# Level 1: Standard Wordle
+# Level 0: Classic
 
-The game is played exactly like the classic version to establish a baseline of trust.
+Tutorial puzzle at `/play`. Standard Wordle rules and colors.
 
-* **Objective:** Guess the hidden 5-letter word in 6 attempts or fewer.
-* **Word Validity:** Each guess must be a valid 5-letter word from the dictionary.
-* **Feedback System:** After each guess, the color of the tiles changes to show how close the guess was to the word:
-* **Green:** The letter is correct and in the exact right position.
-* **Yellow:** The letter is in the word, but in a different position.
-* **Gray:** The letter is not in the word in any position.
+- **Objective:** Guess the hidden five-letter word in six attempts or fewer.
+- **Word validity:** Each guess must be a valid five-letter word from the dictionary.
+- **Feedback:**
+  - **Green:** Letter is correct and in the exact position.
+  - **Yellow:** Letter is in the word but in a different position.
+  - **Gray:** Letter is not in the word.
+
+Winning unlocks level 1 on the home screen.

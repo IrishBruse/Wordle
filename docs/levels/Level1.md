@@ -1,10 +1,12 @@
-# Level 2: The Double Agent
+# Level 1: Double Agent
 
-The interface looks identical to Level 1, but the meaning of the feedback colors is inverted.
+Play at `/play/1` after completing the tutorial. Layout matches Classic; only the color meanings change.
 
-* **Objective:** Guess the hidden 5-letter word in 6 attempts or fewer.
-* **Word Validity:** Each guess must be a valid 5-letter word from the dictionary.
-* **Feedback System:** After each guess, the color of the tiles changes using a swapped logic system:
-* **Yellow:** The letter is correct and in the exact right position.
-* **Green:** The letter is in the word, but in a different position.
-* **Gray:** The letter is not in the word in any position.
+- **Objective:** Guess the hidden five-letter word in six attempts or fewer.
+- **Word validity:** Each guess must be a valid five-letter word from the dictionary.
+- **Feedback (inverted colors):**
+  - **Yellow:** Letter is correct and in the exact position.
+  - **Green:** Letter is in the word but in a different position.
+  - **Gray:** Letter is not in the word.
+
+Hint: SWAPS
