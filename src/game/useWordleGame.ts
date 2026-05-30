@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { applyBlueHerring, pickDecoyColumn } from "./blue-herring";
-import {
-	rotateWordLeft,
-	shouldAdvanceConveyor,
-} from "./conveyor-belt";
+import { rotateWordLeft, shouldAdvanceConveyor } from "./conveyor-belt";
 import { mergeLetterStates } from "./evaluate";
 import { getOrCreateLevelSeed, rollLevelSeed, SSR_FALLBACK_SEED } from "./seed";
 import { rowRevealDurationMs } from "./timing";
@@ -209,13 +206,7 @@ export function useWordleGame(level: LevelConfig) {
 
 		const displayScores =
 			level.blueHerring && column !== null
-				? applyBlueHerring(
-						trueScores,
-						guess,
-						column,
-						herringLetter,
-						rowIndex,
-					)
+				? applyBlueHerring(trueScores, guess, column, herringLetter, rowIndex)
 				: trueScores;
 
 		setRevealingRow(rowIndex);

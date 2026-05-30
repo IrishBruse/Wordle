@@ -1,8 +1,4 @@
 import tailwindcss from "@tailwindcss/vite";
-import { devtools } from "@tanstack/devtools-vite";
-
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
-
 import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -10,18 +6,8 @@ const repoBase = process.env.VITE_BASE_PATH ?? "/Wordle/";
 
 const config = defineConfig({
 	base: repoBase,
-	builder: {},
 	resolve: { tsconfigPaths: true },
-	plugins: [
-		devtools(),
-		tailwindcss(),
-		tanstackStart({
-			router: {
-				basepath: repoBase.replace(/\/$/, "") || undefined,
-			},
-		}),
-		viteReact(),
-	],
+	plugins: [tailwindcss(), viteReact()],
 });
 
 export default config;

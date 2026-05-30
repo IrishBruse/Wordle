@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { markLevelWon, unlockLevel } from "#/game/progress";
 import { encodeSeed } from "#/game/seed";
 import type { LevelConfig } from "#/game/types";
@@ -169,8 +169,7 @@ export function Game({ level }: GameProps) {
 						nextLevel &&
 						nextLevelUnlocked ? (
 							<Link
-								to="/play/$levelId"
-								params={{ levelId: String(nextLevel.id) }}
+								to={`/play/${nextLevel.id}`}
 								className="btn-primary btn-secondary"
 							>
 								Continue

@@ -1,8 +1,5 @@
 import { applyBlueHerring, pickDecoyColumn } from "./blue-herring";
-import {
-	rotateWordLeft,
-	shouldAdvanceConveyor,
-} from "./conveyor-belt";
+import { rotateWordLeft, shouldAdvanceConveyor } from "./conveyor-belt";
 import type { LetterState, LevelConfig } from "./types";
 
 export type ScoreGuessOptions = {
@@ -19,7 +16,11 @@ export function scoreGuessForLevel(
 	decoyColumn: number | null,
 	decoyLetter: string | null,
 	options?: ScoreGuessOptions,
-): { scores: LetterState[]; decoyColumn: number | null; decoyLetter: string | null } {
+): {
+	scores: LetterState[];
+	decoyColumn: number | null;
+	decoyLetter: string | null;
+} {
 	const trueScores = level.evaluateGuess(guess, answer);
 	let column = decoyColumn ?? options?.fixedDecoyColumn ?? null;
 	if (level.blueHerring && column === null && rowIndex === 0) {

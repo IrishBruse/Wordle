@@ -12,7 +12,6 @@
 			"**/.vscode/**/*",
 			"**/vite.config.ts",
 			"!**/dist/**",
-			"!**/src/routeTree.gen.ts",
 			"!**/src/styles.css"
 		]
 	},

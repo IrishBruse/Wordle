@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { HomeDebugPanel } from "#/components/wordle/HomeDebugPanel";
 import type { LevelCompletionStatus } from "#/game/progress";
 import type { LevelConfig } from "#/game/types";
@@ -8,8 +8,6 @@ import {
 	useLevelCompletion,
 } from "#/game/useProgress";
 import { getNumberedLevels } from "#/levels";
-
-export const Route = createFileRoute("/")({ component: Home });
 
 function levelBoxClass(
 	unlocked: boolean,
@@ -38,8 +36,7 @@ function LevelBox({ level }: { level: LevelConfig }) {
 		return (
 			<li>
 				<Link
-					to="/play/$levelId"
-					params={{ levelId: String(level.id) }}
+					to={`/play/${level.id}`}
 					className={className}
 					aria-label={levelAriaLabel(level.id, completion)}
 				>
@@ -58,7 +55,7 @@ function LevelBox({ level }: { level: LevelConfig }) {
 	);
 }
 
-function Home() {
+export function Home() {
 	const hasFinishedFirst = useHasFinishedFirstPuzzle();
 
 	return (
