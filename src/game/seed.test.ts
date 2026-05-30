@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+	answerForEncodedSeed,
 	createSeededRng,
 	decodeSeed,
 	encodeSeed,
@@ -34,6 +35,22 @@ describe("pickAnswerForSeed", () => {
 			[1, 2, 3, 4, 5].map((seed) => pickAnswerForSeed(words, seed)),
 		);
 		expect(picks.size).toBeGreaterThan(1);
+	});
+});
+
+describe("answerForEncodedSeed", () => {
+	it("returns null for empty or invalid codes", () => {
+		const words = ["alpha", "bravo"];
+		expect(answerForEncodedSeed("", words)).toBeNull();
+		expect(answerForEncodedSeed("!!!!", words)).toBeNull();
+	});
+
+	it("matches pickAnswerForSeed for a valid code", () => {
+		const words = ["alpha", "bravo", "charlie"];
+		const code = encodeSeed(42);
+		expect(answerForEncodedSeed(code, words)).toBe(
+			pickAnswerForSeed(words, 42),
+		);
 	});
 });
 

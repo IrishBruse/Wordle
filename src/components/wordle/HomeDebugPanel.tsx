@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import { useIsLocalhost } from "#/game/dev";
 import {
 	clearAllGameStorage,
@@ -12,7 +12,9 @@ import {
 	setMaxUnlockedLevel,
 	subscribeProgress,
 } from "#/game/progress";
+import { answerForEncodedSeed } from "#/game/seed";
 import { useMaxUnlockedLevel } from "#/game/useProgress";
+import { getWordLists } from "#/game/words";
 import { getNumberedLevels } from "#/levels";
 
 function DebugButton({
@@ -26,6 +28,47 @@ function DebugButton({
 		<button type="button" className="home-debug-btn" onClick={onClick}>
 			{children}
 		</button>
+	);
+}
+
+function SeedLookup() {
+	const [seedCode, setSeedCode] = useState("");
+	const answers = useMemo(() => getWordLists().answers, []);
+	const lookup = useMemo(
+		() => answerForEncodedSeed(seedCode, answers),
+		[answers, seedCode],
+	);
+
+	let result: string;
+	if (!seedCode.trim()) {
+		result = "Enter a seed code";
+	} else if (lookup === null) {
+		result = "Invalid seed";
+	} else {
+		result = lookup.toUpperCase();
+	}
+
+	return (
+		<div className="home-debug-group">
+			<label className="home-debug-label" htmlFor="home-debug-seed">
+				Seed to answer (levels 0-3)
+			</label>
+			<input
+				id="home-debug-seed"
+				className="home-debug-input"
+				type="text"
+				value={seedCode}
+				onChange={(event) => setSeedCode(event.target.value)}
+				placeholder="0001"
+				spellCheck={false}
+				autoCapitalize="off"
+				autoComplete="off"
+				maxLength={4}
+			/>
+			<p className="home-debug-seed-result" aria-live="polite">
+				{result}
+			</p>
+		</div>
 	);
 }
 
@@ -56,6 +99,8 @@ export function HomeDebugPanel() {
 			<p className="home-debug-state">
 				Max unlocked: {maxUnlocked} | Completions: {completionSummary || "none"}
 			</p>
+
+			<SeedLookup />
 
 			<div className="home-debug-group">
 				<p className="home-debug-label">Local storage</p>

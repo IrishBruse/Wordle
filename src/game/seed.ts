@@ -75,6 +75,18 @@ export function pickAnswerForSeed(words: string[], seed: number): string {
 	return words[index] ?? "crane";
 }
 
+/** Resolve the answer word for a seed code shown in-game (base62). */
+export function answerForEncodedSeed(
+	encoded: string,
+	words: string[],
+): string | null {
+	const trimmed = encoded.trim();
+	if (!trimmed) return null;
+	const seed = decodeSeed(trimmed);
+	if (seed === null) return null;
+	return pickAnswerForSeed(words, seed);
+}
+
 export function getOrCreateLevelSeed(levelId: LevelId): number {
 	if (typeof window === "undefined") return SSR_FALLBACK_SEED;
 	const raw = window.localStorage.getItem(storageKey(levelId));

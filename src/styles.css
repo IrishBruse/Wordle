@@ -222,6 +222,33 @@ a {
   background: #252526;
 }
 
+.home-debug-input {
+  display: block;
+  width: 5rem;
+  margin-bottom: 0.35rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #3a3a3c;
+  border-radius: 4px;
+  background: #1a1a1b;
+  color: #d7dadc;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+}
+
+.home-debug-input:focus {
+  outline: none;
+  border-color: #565758;
+}
+
+.home-debug-seed-result {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #d7dadc;
+}
+
 /* Game shell */
 
 .game {
