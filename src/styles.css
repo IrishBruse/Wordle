@@ -241,6 +241,13 @@ a {
   border-color: #565758;
 }
 
+.home-debug-select {
+  width: 100%;
+  max-width: 14rem;
+  font-family: inherit;
+  letter-spacing: normal;
+}
+
 .home-debug-seed-result {
   margin: 0;
   font-family: ui-monospace, monospace;

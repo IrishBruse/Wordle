@@ -1,5 +1,6 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useIsLocalhost } from "#/game/dev";
+import { gibberishForEncodedSeed } from "#/game/gibberish";
 import {
 	clearAllGameStorage,
 	clearCompletions,
@@ -33,11 +34,14 @@ function DebugButton({
 
 function SeedLookup() {
 	const [seedCode, setSeedCode] = useState("");
-	const answers = useMemo(() => getWordLists().answers, []);
-	const lookup = useMemo(
-		() => answerForEncodedSeed(seedCode, answers),
-		[answers, seedCode],
-	);
+	const [levelId, setLevelId] = useState("0");
+	const { answers, allowed } = useMemo(() => getWordLists(), []);
+	const lookup = useMemo(() => {
+		if (levelId === "6") {
+			return gibberishForEncodedSeed(seedCode, allowed);
+		}
+		return answerForEncodedSeed(seedCode, answers);
+	}, [allowed, answers, levelId, seedCode]);
 
 	let result: string;
 	if (!seedCode.trim()) {
@@ -50,8 +54,20 @@ function SeedLookup() {
 
 	return (
 		<div className="home-debug-group">
+			<label className="home-debug-label" htmlFor="home-debug-seed-level">
+				Level for seed lookup
+			</label>
+			<select
+				id="home-debug-seed-level"
+				className="home-debug-input home-debug-select"
+				value={levelId}
+				onChange={(event) => setLevelId(event.target.value)}
+			>
+				<option value="0">0-3 (word pool)</option>
+				<option value="6">6 (gibberish)</option>
+			</select>
 			<label className="home-debug-label" htmlFor="home-debug-seed">
-				Seed to answer (levels 0-3)
+				Seed to answer
 			</label>
 			<input
 				id="home-debug-seed"
