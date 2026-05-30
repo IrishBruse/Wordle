@@ -37,10 +37,19 @@ export function scoreGuessForLevel(
 		level.blueHerring && column !== null
 			? applyBlueHerring(trueScores, guess, column, letter, rowIndex)
 			: trueScores;
-	if (level.blindFeedback) {
-		const winTarget = options?.winAgainst ?? answer;
-		const won = guess === winTarget;
+
+	const displayLength = level.wordLength;
+	const guessLength = level.guessLength ?? level.wordLength;
+	const hasHiddenInput = guessLength > displayLength;
+	const winTarget = options?.winAgainst ?? answer;
+	const won = guess === winTarget;
+
+	if (won && hasHiddenInput) {
+		scores = Array.from({ length: displayLength }, () => "correct" as const);
+	} else if (level.blindFeedback) {
 		scores = applyBlindDisplay(scores, won);
+	} else if (hasHiddenInput) {
+		scores = scores.slice(0, displayLength);
 	}
 	return { scores, decoyColumn: column, decoyLetter: letter };
 }

@@ -26,6 +26,10 @@ export type LevelConfig = {
 	/** Shown when the player reveals the hint for this level. */
 	hint: string;
 	wordLength: number;
+	/** Letters required to submit; defaults to wordLength. May exceed wordLength when extra input is hidden. */
+	guessLength?: number;
+	/** Internal letters removed per backspace; defaults to 1. */
+	backspaceStep?: number;
 	maxGuesses: number;
 	/** Pick the secret word for this run. Override per level. */
 	pickAnswer: (words: string[], seed: number) => string;

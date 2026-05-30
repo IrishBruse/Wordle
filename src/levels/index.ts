@@ -4,8 +4,16 @@ import { level1 } from "./1";
 import { level2 } from "./2";
 import { level3 } from "./3";
 import { level4 } from "./4";
+import { level5 } from "./5";
 
-export const LEVELS: LevelConfig[] = [level0, level1, level2, level3, level4];
+export const LEVELS: LevelConfig[] = [
+	level0,
+	level1,
+	level2,
+	level3,
+	level4,
+	level5,
+];
 
 export function getTutorialLevel(): LevelConfig {
 	return LEVELS[0];

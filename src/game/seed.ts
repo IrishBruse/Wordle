@@ -4,44 +4,51 @@ const STORAGE_PREFIX = "wordle-seed-";
 
 /** Stable initial seed for SSR and the first client render (before localStorage sync). */
 export const SSR_FALLBACK_SEED = 1;
-const BASE62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 const SEED_CODE_LENGTH = 4;
-const MAX_SEED = 62 ** SEED_CODE_LENGTH;
+const MAX_SEED = 10 ** SEED_CODE_LENGTH;
+
+/** Base62 alphabet for seeds stored before numeric-only codes. */
+const LEGACY_BASE62 =
+	"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 function normalizeSeed(seed: number): number {
 	return (seed >>> 0) % MAX_SEED;
 }
 
-/** Compact alphanumeric code for display and storage (0-9, a-z, A-Z). */
+/** Four-digit decimal code for display and storage (0000-9999). */
 export function encodeSeed(seed: number): string {
-	let n = normalizeSeed(seed);
-	let out = "";
-	do {
-		out = BASE62[n % 62] + out;
-		n = Math.floor(n / 62);
-	} while (n > 0);
-	return out.padStart(SEED_CODE_LENGTH, "0");
+	return String(normalizeSeed(seed)).padStart(SEED_CODE_LENGTH, "0");
 }
 
 export function decodeSeed(encoded: string): number | null {
+	if (!/^\d+$/.test(encoded)) return null;
+	const n = Number.parseInt(encoded, 10);
+	if (!Number.isFinite(n) || n < 0 || n >= MAX_SEED) return null;
+	return n;
+}
+
+function decodeLegacyBase62Seed(encoded: string): number | null {
 	if (!encoded) return null;
 	let n = 0;
 	for (const char of encoded) {
-		const digit = BASE62.indexOf(char);
+		const digit = LEGACY_BASE62.indexOf(char);
 		if (digit === -1) return null;
 		n = n * 62 + digit;
 		if (n > 0xffff_ffff) return null;
 	}
-	return n >>> 0;
+	return normalizeSeed(n >>> 0);
 }
 
 function readStoredSeed(raw: string): number | null {
-	if (/[a-zA-Z]/.test(raw)) return decodeSeed(raw);
+	if (/[a-zA-Z]/.test(raw)) return decodeLegacyBase62Seed(raw);
 	if (/^\d+$/.test(raw)) {
+		const fromCode = decodeSeed(raw);
+		if (fromCode !== null) return fromCode;
 		const legacy = Number.parseInt(raw, 10);
-		if (Number.isFinite(legacy)) return legacy >>> 0;
+		if (Number.isFinite(legacy)) return normalizeSeed(legacy);
 	}
-	return decodeSeed(raw);
+	return decodeLegacyBase62Seed(raw);
 }
 
 function writeStoredSeed(levelId: LevelId, seed: number): void {
@@ -75,7 +82,7 @@ export function pickAnswerForSeed(words: string[], seed: number): string {
 	return words[index] ?? "crane";
 }
 
-/** Resolve the answer word for a seed code shown in-game (base62). */
+/** Resolve the answer word for a seed code shown in-game (four digits). */
 export function answerForEncodedSeed(
 	encoded: string,
 	words: string[],

@@ -24,7 +24,7 @@ Design notes for the Wordle variant in this repo. Behavior described here matche
 Each level keeps its own run seed in `localStorage` (`wordle-seed-{levelId}`).
 
 - The seed picks the secret word deterministically (Mulberry32 RNG over the answer pool).
-- The active seed is always shown at the bottom of the play screen as a four-character base62 code (digits, `a-z`, `A-Z`).
+- The active seed is always shown at the bottom of the play screen as a four-digit code (`0000`-`9999`).
 - **Loss:** When the player uses all six guesses without winning, the game rolls a new seed immediately and shows the previous answer in the message. The displayed seed updates to the new run.
 - **New / Play again:** Starts a fresh board. If the last run ended in a loss, the seed from the loss roll is reused. Otherwise a new seed is rolled (including after a win).
 

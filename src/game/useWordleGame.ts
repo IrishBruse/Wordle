@@ -7,6 +7,12 @@ import {
 	shouldAdvanceConveyor,
 } from "./conveyor-belt";
 import { mergeLetterStates } from "./evaluate";
+import {
+	addLetterToGuess,
+	buildFullGuess,
+	removeLettersFromGuess,
+	splitGuessForDisplay,
+} from "./hidden-input";
 import { getOrCreateLevelSeed, rollLevelSeed, SSR_FALLBACK_SEED } from "./seed";
 import { rowRevealDurationMs } from "./timing";
 import type {
@@ -26,7 +32,41 @@ function createBoard(rows: number, cols: number): TileData[][] {
 	return Array.from({ length: rows }, () => emptyRow(cols));
 }
 
+function applyVisibleLetters(row: TileData[], visible: string): void {
+	for (let i = 0; i < row.length; i++) {
+		const char = visible[i];
+		if (char) {
+			row[i] = { letter: char.toUpperCase(), state: "tbd" };
+		} else {
+			row[i] = { letter: "", state: "empty" };
+		}
+	}
+}
+
+function guessForRow(row: TileData[], submitted: string | undefined): string {
+	if (submitted !== undefined) return submitted;
+	return row
+		.map((tile) => tile.letter)
+		.join("")
+		.toLowerCase();
+}
+
+function isCompleteGuess(
+	length: number,
+	displayLength: number,
+	maxGuessLength: number,
+	hasHiddenInput: boolean,
+): boolean {
+	if (!hasHiddenInput) return length === maxGuessLength;
+	return length === displayLength || length === maxGuessLength;
+}
+
 export function useWordleGame(level: LevelConfig) {
+	const displayLength = level.wordLength;
+	const guessLength = level.guessLength ?? level.wordLength;
+	const backspaceStep = level.backspaceStep ?? 1;
+	const hasHiddenInput = guessLength > displayLength;
+
 	const [allowed] = useState(() => getWordLists().allowed);
 	const [answers] = useState(() => getWordLists().answers);
 	const [answer, setAnswer] = useState("");
@@ -37,27 +77,33 @@ export function useWordleGame(level: LevelConfig) {
 	baseAnswerRef.current = baseAnswer;
 	const [seed, setSeed] = useState(SSR_FALLBACK_SEED);
 	const [board, setBoard] = useState<TileData[][]>(() =>
-		createBoard(level.maxGuesses, level.wordLength),
+		createBoard(level.maxGuesses, displayLength),
 	);
 	const [currentRow, setCurrentRow] = useState(0);
 	const [status, setStatus] = useState<GameStatus>("playing");
 	const [message, setMessage] = useState<GameMessage>({ type: "none" });
 	const [revealingRow, setRevealingRow] = useState<number | null>(null);
 	const [decoyColumn, setDecoyColumn] = useState<number | null>(null);
+	const [overflow, setOverflow] = useState("");
+	const overflowRef = useRef(overflow);
+	overflowRef.current = overflow;
+	const [submittedGuesses, setSubmittedGuesses] = useState<string[]>([]);
 
 	const initGame = useCallback(
 		(pool: string[], gameSeed: number) => {
 			const secret = level.pickAnswer(pool, gameSeed);
 			setAnswer(secret);
 			setBaseAnswer(secret);
-			setBoard(createBoard(level.maxGuesses, level.wordLength));
+			setBoard(createBoard(level.maxGuesses, displayLength));
 			setCurrentRow(0);
 			setStatus("playing");
 			setMessage({ type: "none" });
 			setRevealingRow(null);
 			setDecoyColumn(null);
+			setOverflow("");
+			setSubmittedGuesses([]);
 		},
-		[level],
+		[displayLength, level],
 	);
 
 	useEffect(() => {
@@ -68,11 +114,13 @@ export function useWordleGame(level: LevelConfig) {
 
 	const currentGuess = useMemo(() => {
 		if (currentRow >= board.length) return "";
-		return board[currentRow]
+		const visible = board[currentRow]
 			.map((tile) => tile.letter)
 			.join("")
 			.toLowerCase();
-	}, [board, currentRow]);
+		if (!hasHiddenInput) return visible;
+		return buildFullGuess(visible, overflow);
+	}, [board, currentRow, hasHiddenInput, overflow]);
 
 	const decoyLetter = useMemo(() => {
 		if (decoyColumn === null) return null;
@@ -90,13 +138,19 @@ export function useWordleGame(level: LevelConfig) {
 			);
 
 		for (let row = 0; row < currentRow; row++) {
-			const guess = board[row]
-				.map((tile) => tile.letter)
-				.join("")
-				.toLowerCase();
-			if (guess.length !== level.wordLength) continue;
+			const guess = guessForRow(board[row], submittedGuesses[row]);
+			if (
+				!isCompleteGuess(
+					guess.length,
+					displayLength,
+					guessLength,
+					hasHiddenInput,
+				)
+			) {
+				continue;
+			}
 			const trueScores = level.evaluateGuess(guess, answer);
-			for (let i = 0; i < level.wordLength; i++) {
+			for (let i = 0; i < displayLength; i++) {
 				const letter = board[row][i].letter;
 				if (!letter) continue;
 				const key = letter.toUpperCase();
@@ -123,8 +177,12 @@ export function useWordleGame(level: LevelConfig) {
 		currentRow,
 		decoyColumn,
 		decoyLetter,
+		displayLength,
+		guessLength,
 		level,
 		revealingRow,
+		submittedGuesses,
+		hasHiddenInput,
 	]);
 
 	const showMessage = useCallback((next: GameMessage) => {
@@ -137,36 +195,89 @@ export function useWordleGame(level: LevelConfig) {
 	const addLetter = useCallback(
 		(letter: string) => {
 			if (status !== "playing" || revealingRow !== null) return;
+			if (!hasHiddenInput) {
+				setBoard((prev) => {
+					const next = prev.map((row) => row.map((tile) => ({ ...tile })));
+					const row = next[currentRow];
+					const slot = row.findIndex((tile) => tile.letter === "");
+					if (slot === -1) return prev;
+					row[slot] = { letter: letter.toUpperCase(), state: "tbd" };
+					return next;
+				});
+				return;
+			}
 			setBoard((prev) => {
+				const visible = prev[currentRow]
+					.map((tile) => tile.letter)
+					.join("")
+					.toLowerCase();
+				const full = buildFullGuess(visible, overflowRef.current);
+				const nextFull = addLetterToGuess(full, letter, guessLength);
+				if (!nextFull) return prev;
+				const { visible: nextVisible, overflow: nextOverflow } =
+					splitGuessForDisplay(nextFull, displayLength);
+				overflowRef.current = nextOverflow;
+				setOverflow(nextOverflow);
 				const next = prev.map((row) => row.map((tile) => ({ ...tile })));
-				const row = next[currentRow];
-				const slot = row.findIndex((tile) => tile.letter === "");
-				if (slot === -1) return prev;
-				row[slot] = { letter: letter.toUpperCase(), state: "tbd" };
+				applyVisibleLetters(next[currentRow], nextVisible);
 				return next;
 			});
 		},
-		[currentRow, revealingRow, status],
+		[
+			currentRow,
+			displayLength,
+			guessLength,
+			hasHiddenInput,
+			revealingRow,
+			status,
+		],
 	);
 
 	const removeLetter = useCallback(() => {
 		if (status !== "playing" || revealingRow !== null) return;
+		if (!hasHiddenInput) {
+			setBoard((prev) => {
+				const next = prev.map((row) => row.map((tile) => ({ ...tile })));
+				const row = next[currentRow];
+				const slot = [...row].reverse().findIndex((tile) => tile.letter !== "");
+				if (slot === -1) return prev;
+				const index = row.length - 1 - slot;
+				row[index] = { letter: "", state: "empty" };
+				return next;
+			});
+			return;
+		}
 		setBoard((prev) => {
+			const visible = prev[currentRow]
+				.map((tile) => tile.letter)
+				.join("")
+				.toLowerCase();
+			const full = buildFullGuess(visible, overflowRef.current);
+			if (full.length === 0) return prev;
+			const nextFull = removeLettersFromGuess(full, backspaceStep);
+			const { visible: nextVisible, overflow: nextOverflow } =
+				splitGuessForDisplay(nextFull, displayLength);
+			overflowRef.current = nextOverflow;
+			setOverflow(nextOverflow);
 			const next = prev.map((row) => row.map((tile) => ({ ...tile })));
-			const row = next[currentRow];
-			const slot = [...row].reverse().findIndex((tile) => tile.letter !== "");
-			if (slot === -1) return prev;
-			const index = row.length - 1 - slot;
-			row[index] = { letter: "", state: "empty" };
+			applyVisibleLetters(next[currentRow], nextVisible);
 			return next;
 		});
-	}, [currentRow, revealingRow, status]);
+	}, [
+		backspaceStep,
+		currentRow,
+		displayLength,
+		hasHiddenInput,
+		revealingRow,
+		status,
+	]);
 
 	const clearGuess = useCallback(() => {
 		if (status !== "playing" || revealingRow !== null) return;
 		setBoard((prev) => {
 			const row = prev[currentRow];
-			if (!row.some((tile) => tile.letter !== "")) return prev;
+			const hasVisible = row.some((tile) => tile.letter !== "");
+			if (!hasVisible && !overflowRef.current) return prev;
 			const next = prev.map((r) => r.map((tile) => ({ ...tile })));
 			for (const tile of next[currentRow]) {
 				tile.letter = "";
@@ -174,13 +285,17 @@ export function useWordleGame(level: LevelConfig) {
 			}
 			return next;
 		});
-	}, [currentRow, revealingRow, status]);
+		if (hasHiddenInput) {
+			overflowRef.current = "";
+			setOverflow("");
+		}
+	}, [currentRow, hasHiddenInput, revealingRow, status]);
 
 	const submitGuess = useCallback(() => {
 		if (status !== "playing" || revealingRow !== null) return;
 
 		const guess = currentGuess;
-		if (guess.length < level.wordLength) {
+		if (guess.length < displayLength) {
 			showMessage({ type: "not-enough-letters" });
 			return;
 		}
@@ -201,7 +316,7 @@ export function useWordleGame(level: LevelConfig) {
 
 		let column = decoyColumn;
 		if (level.blueHerring && column === null && rowIndex === 0) {
-			column = pickDecoyColumn(level.wordLength);
+			column = pickDecoyColumn(displayLength);
 			setDecoyColumn(column);
 		}
 
@@ -222,17 +337,29 @@ export function useWordleGame(level: LevelConfig) {
 			: guess === answerRef.current;
 		if (wonOnSubmit) {
 			displayScores = Array.from(
-				{ length: level.wordLength },
+				{ length: displayLength },
 				(): LetterState => "correct",
 			);
 		} else if (level.blindFeedback) {
-			displayScores = applyBlindDisplay(displayScores, false);
+			displayScores = applyBlindDisplay(
+				displayScores.slice(0, displayLength),
+				false,
+			);
+		} else if (hasHiddenInput) {
+			displayScores = displayScores.slice(0, displayLength);
 		}
 
 		setRevealingRow(rowIndex);
+		setSubmittedGuesses((prev) => {
+			const next = [...prev];
+			next[rowIndex] = guess;
+			return next;
+		});
+		setOverflow("");
+		overflowRef.current = "";
 		setBoard((prev) => {
 			const next = prev.map((row) => row.map((tile) => ({ ...tile })));
-			for (let i = 0; i < level.wordLength; i++) {
+			for (let i = 0; i < displayLength; i++) {
 				next[rowIndex][i] = {
 					letter: guess[i].toUpperCase(),
 					state: displayScores[i],
@@ -241,7 +368,7 @@ export function useWordleGame(level: LevelConfig) {
 			return next;
 		});
 
-		const revealMs = rowRevealDurationMs(level.wordLength);
+		const revealMs = rowRevealDurationMs(displayLength);
 		window.setTimeout(() => {
 			setRevealingRow(null);
 			const won = wonOnSubmit;
@@ -255,9 +382,11 @@ export function useWordleGame(level: LevelConfig) {
 				setSeed(rollLevelSeed(level.id));
 				showMessage({
 					type: "lost",
-					answer: level.conveyorBelt
-						? baseAnswerRef.current
-						: answerRef.current,
+					answer: hasHiddenInput
+						? answerRef.current.slice(0, displayLength)
+						: level.conveyorBelt
+							? baseAnswerRef.current
+							: answerRef.current,
 				});
 				return;
 			}
@@ -267,12 +396,14 @@ export function useWordleGame(level: LevelConfig) {
 			setCurrentRow(rowIndex + 1);
 		}, revealMs);
 	}, [
-		answer,
 		allowed,
+		answer,
 		board,
 		currentGuess,
 		currentRow,
 		decoyColumn,
+		displayLength,
+		hasHiddenInput,
 		level,
 		revealingRow,
 		showMessage,

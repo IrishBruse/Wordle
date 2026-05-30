@@ -13,7 +13,7 @@ export const level4: LevelConfig = {
 	id: 4,
 	name: "Hardcoded",
 	description: "Five letters, six guesses. No color hints until you win.",
-	hint: "Repo",
+	hint: "Robot Game",
 	wordLength: WORD_LENGTH,
 	maxGuesses: MAX_GUESSES,
 	pickAnswer: pickHardcodedAnswer,
