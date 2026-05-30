@@ -17,7 +17,7 @@ Design notes for the Wordle variant in this repo. Behavior described here matche
 
 - The home page (`/`) shows a **Play** button until the player wins the tutorial once. After that, it lists numbered puzzles (id 1 and up). Locked puzzles appear grayed out until unlocked.
 - Winning a level unlocks the next level id in `localStorage` (`wordle-max-unlocked-level`). There is no separate save of in-progress boards.
-- Level-specific rules and color semantics are documented under [levels/](levels/).
+- Level-specific rules and color semantics live with each level under `src/levels/{id}/design.md`.
 
 ## Seeds and puzzles
 

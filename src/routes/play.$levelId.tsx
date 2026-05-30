@@ -1,33 +1,9 @@
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
-import { Game } from "#/components/wordle/Game";
-import { getLevel } from "#/game/levels";
-import { isLevelUnlocked } from "#/game/progress";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/play/$levelId")({
-	component: PlayLevel,
-});
+export const Route = createFileRoute('/play/$levelId')({
+  component: RouteComponent,
+})
 
-function PlayLevel() {
-	const { levelId } = Route.useParams();
-	const id = Number.parseInt(levelId, 10);
-	const level = getLevel(id);
-
-	if (!level) {
-		return (
-			<div className="home">
-				<p>That puzzle does not exist.</p>
-				<Link to="/">Home</Link>
-			</div>
-		);
-	}
-
-	if (id < 1) {
-		return <Navigate to="/play" />;
-	}
-
-	if (!isLevelUnlocked(id)) {
-		return <Navigate to="/play" />;
-	}
-
-	return <Game level={level} />;
+function RouteComponent() {
+  return <div>Hello "/play/$levelId"!</div>
 }

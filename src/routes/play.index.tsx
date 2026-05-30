@@ -1,11 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Game } from "#/components/wordle/Game";
-import { getTutorialLevel } from "#/game/levels";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/play/")({
-	component: PlayTutorial,
-});
+export const Route = createFileRoute('/play/')({
+  component: RouteComponent,
+})
 
-function PlayTutorial() {
-	return <Game level={getTutorialLevel()} />;
+function RouteComponent() {
+  return <div>Hello "/play/"!</div>
 }

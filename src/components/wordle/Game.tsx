@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getNextLevel } from "#/game/levels";
+import { getNextLevel } from "#/levels";
 import { encodeSeed } from "#/game/seed";
 import { isLevelUnlocked, unlockLevel } from "#/game/progress";
 import type { LevelConfig } from "#/game/types";
