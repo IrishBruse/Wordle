@@ -1,7 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "#/App";
+import { installDebugConsoleToggle } from "#/game/dev";
 import "#/styles.css";
+
+installDebugConsoleToggle();
 
 const rootEl = document.getElementById("root");
 if (!rootEl) {

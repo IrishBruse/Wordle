@@ -1,5 +1,5 @@
 import { evaluateGuess } from "#/game/evaluate";
-import { pickAnswerForSeed } from "#/game/seed";
+import { createPickAnswerForLevel } from "#/game/seed";
 import type { LevelConfig } from "#/game/types";
 import { MAX_GUESSES, WORD_LENGTH } from "#/game/types";
 
@@ -11,7 +11,7 @@ export const level3: LevelConfig = {
 	hint: "The goalposts keep moving",
 	wordLength: WORD_LENGTH,
 	maxGuesses: MAX_GUESSES,
-	pickAnswer: pickAnswerForSeed,
+	pickAnswer: createPickAnswerForLevel(3),
 	evaluateGuess,
 	conveyorBelt: true,
 };

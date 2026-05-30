@@ -1,4 +1,4 @@
-import { decodeSeed, pickAnswerForSeed } from "./seed";
+import { decodeSeed, pickAnswerForLevel } from "./seed";
 import { WORD_LENGTH } from "./types";
 
 /** Matches on-screen symbol keyboard rows (see Keyboard.tsx). */
@@ -70,7 +70,7 @@ export function isAllowedLeetKey(key: string): boolean {
 }
 
 export function pickLeetAnswerForSeed(words: string[], seed: number): string {
-	return encodeWord(pickAnswerForSeed(words, seed));
+	return encodeWord(pickAnswerForLevel(words, seed, 7));
 }
 
 /** Resolve leet-encoded answer for a four-digit seed code (level 7). */
@@ -83,7 +83,7 @@ export function symbolsForEncodedSeed(
 	if (!trimmed) return null;
 	const seed = decodeSeed(trimmed);
 	if (seed === null) return null;
-	const word = pickAnswerForSeed(words, seed);
+	const word = pickAnswerForLevel(words, seed, 7);
 	if (word.length !== length) return null;
 	return encodeWord(word);
 }

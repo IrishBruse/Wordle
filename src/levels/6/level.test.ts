@@ -4,7 +4,7 @@ import {
 	letterDifferenceCount,
 	pickMutatedAnswerForSeed,
 } from "#/game/mutated";
-import { pickAnswerForSeed } from "#/game/seed";
+import { pickAnswerForLevel } from "#/game/seed";
 import { simulatePlaythrough } from "#/game/simulate-level";
 import { MAX_GUESSES, WORD_LENGTH } from "#/game/types";
 import { getWordLists } from "#/game/words";
@@ -28,7 +28,7 @@ describe("level 6: Almost", () => {
 
 	it("picks a one-letter mutation of a seeded answer word", () => {
 		const secret = level6.pickAnswer(answers, 42);
-		const base = pickAnswerForSeed(answers, 42);
+		const base = pickAnswerForLevel(answers, 42, 6);
 		expect(secret).toHaveLength(WORD_LENGTH);
 		expect(allowed.has(secret)).toBe(false);
 		expect(letterDifferenceCount(base, secret)).toBe(1);

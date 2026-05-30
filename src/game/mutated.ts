@@ -1,4 +1,4 @@
-import { createSeededRng, decodeSeed, pickAnswerForSeed } from "./seed";
+import { createSeededRng, decodeSeed, pickAnswerForLevel } from "./seed";
 import { getWordLists } from "./words";
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
@@ -42,7 +42,7 @@ export function pickMutatedAnswerDetailsForSeed(
 	seed: number,
 	allowed: Set<string>,
 ): MutatedAnswerDetails {
-	const base = pickAnswerForSeed(words, seed);
+	const base = pickAnswerForLevel(words, seed, 6);
 	const rng = createSeededRng((seed + MUTATION_SALT) >>> 0);
 
 	for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
@@ -86,8 +86,7 @@ export function pickAlmostAnswerForSeed(words: string[], seed: number): string {
 }
 
 export function formatMutationChange(details: MutatedAnswerDetails): string {
-	const position = details.position + 1;
-	return `Pos ${position}: ${details.from.toUpperCase()} -> ${details.to.toUpperCase()} (from ${details.base.toUpperCase()})`;
+	return `${details.base.toUpperCase()} | ${details.answer.toUpperCase()}`;
 }
 
 /** Resolve mutated answer for a four-digit seed code (level 6). */

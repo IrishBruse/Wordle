@@ -61,16 +61,45 @@ export function pickAnswerForSeed(words: string[], seed: number): string {
 	return words[index] ?? "crane";
 }
 
+const LEVEL_SEED_SALT = 0x9e3779b9;
+
+/** Mix display seed with level so the same code yields different words per level. */
+export function seedForLevel(seed: number, levelId: LevelId): number {
+	return ((seed >>> 0) ^ Math.imul((levelId + 1) >>> 0, LEVEL_SEED_SALT)) >>> 0;
+}
+
+export function pickAnswerForLevel(
+	words: string[],
+	seed: number,
+	levelId: LevelId,
+): string {
+	return pickAnswerForSeed(words, seedForLevel(seed, levelId));
+}
+
+export function createPickAnswerForLevel(levelId: LevelId) {
+	return (words: string[], seed: number) =>
+		pickAnswerForLevel(words, seed, levelId);
+}
+
 /** Resolve the answer word for a seed code shown in-game (four digits). */
-export function answerForEncodedSeed(
+export function answerForLevelEncodedSeed(
 	encoded: string,
 	words: string[],
+	levelId: LevelId,
 ): string | null {
 	const trimmed = encoded.trim();
 	if (!trimmed) return null;
 	const seed = decodeSeed(trimmed);
 	if (seed === null) return null;
-	return pickAnswerForSeed(words, seed);
+	return pickAnswerForLevel(words, seed, levelId);
+}
+
+/** Level 0 lookup helper; prefer {@link answerForLevelEncodedSeed} for other levels. */
+export function answerForEncodedSeed(
+	encoded: string,
+	words: string[],
+): string | null {
+	return answerForLevelEncodedSeed(encoded, words, 0);
 }
 
 /**

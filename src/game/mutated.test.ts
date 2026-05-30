@@ -7,7 +7,7 @@ import {
 	pickMutatedAnswerDetailsForSeed,
 	pickMutatedAnswerForSeed,
 } from "./mutated";
-import { encodeSeed, pickAnswerForSeed } from "./seed";
+import { encodeSeed, pickAnswerForLevel } from "./seed";
 import { getWordLists } from "./words";
 
 describe("pickMutatedAnswerForSeed", () => {
@@ -30,7 +30,7 @@ describe("pickMutatedAnswerForSeed", () => {
 
 	it("differs by one letter from the seeded base word and is not in the list", () => {
 		for (let seed = 0; seed < 200; seed++) {
-			const base = pickAnswerForSeed(answers, seed);
+			const base = pickAnswerForLevel(answers, seed, 6);
 			const word = pickMutatedAnswerForSeed(answers, seed, allowed);
 			expect(word).toHaveLength(5);
 			expect(word).toMatch(/^[a-z]+$/);
@@ -65,7 +65,7 @@ describe("mutatedAnswerForEncodedSeed", () => {
 });
 
 describe("formatMutationChange", () => {
-	it("describes the changed letter and base word", () => {
+	it("shows base word and mutated answer", () => {
 		const line = formatMutationChange({
 			answer: "brxne",
 			base: "crane",
@@ -73,6 +73,6 @@ describe("formatMutationChange", () => {
 			from: "a",
 			to: "x",
 		});
-		expect(line).toBe("Pos 3: A -> X (from CRANE)");
+		expect(line).toBe("CRANE | BRXNE");
 	});
 });

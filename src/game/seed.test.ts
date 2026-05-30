@@ -1,13 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	answerForEncodedSeed,
+	answerForLevelEncodedSeed,
 	consumeLevelSeed,
 	createSeededRng,
 	decodeSeed,
 	encodeSeed,
 	FIRST_LEVEL_SEED,
+	pickAnswerForLevel,
 	pickAnswerForSeed,
 } from "./seed";
+import { getWordLists } from "./words";
 
 function mockBrowserStorage() {
 	const data = new Map<string, string>();
@@ -60,6 +63,24 @@ describe("pickAnswerForSeed", () => {
 	});
 });
 
+describe("pickAnswerForLevel", () => {
+	it("picks the same word for the same seed and level", () => {
+		const words = ["alpha", "bravo", "charlie"];
+		expect(pickAnswerForLevel(words, 42, 0)).toBe(
+			pickAnswerForLevel(words, 42, 0),
+		);
+	});
+
+	it("picks different words for the same seed on different levels", () => {
+		const { answers } = getWordLists();
+		const seed = 1;
+		const byLevel = [0, 1, 2, 3].map((levelId) =>
+			pickAnswerForLevel(answers, seed, levelId),
+		);
+		expect(new Set(byLevel).size).toBeGreaterThan(1);
+	});
+});
+
 describe("answerForEncodedSeed", () => {
 	it("returns null for empty or invalid codes", () => {
 		const words = ["alpha", "bravo"];
@@ -67,11 +88,21 @@ describe("answerForEncodedSeed", () => {
 		expect(answerForEncodedSeed("!!!!", words)).toBeNull();
 	});
 
-	it("matches pickAnswerForSeed for a valid code", () => {
+	it("matches pickAnswerForLevel for level 0", () => {
 		const words = ["alpha", "bravo", "charlie"];
 		const code = encodeSeed(42);
 		expect(answerForEncodedSeed(code, words)).toBe(
-			pickAnswerForSeed(words, 42),
+			pickAnswerForLevel(words, 42, 0),
+		);
+	});
+});
+
+describe("answerForLevelEncodedSeed", () => {
+	it("matches pickAnswerForLevel for a valid code", () => {
+		const words = ["alpha", "bravo", "charlie"];
+		const code = encodeSeed(42);
+		expect(answerForLevelEncodedSeed(code, words, 2)).toBe(
+			pickAnswerForLevel(words, 42, 2),
 		);
 	});
 });

@@ -1,6 +1,11 @@
+import type { MouseEvent } from "react";
 import { Link } from "react-router-dom";
 import { HomeDebugPanel } from "#/components/wordle/HomeDebugPanel";
-import type { LevelCompletionStatus } from "#/game/progress";
+import { useDebugMode } from "#/game/dev";
+import {
+	type LevelCompletionStatus,
+	setLevelCompletion,
+} from "#/game/progress";
 import type { LevelConfig } from "#/game/types";
 import {
 	useHasFinishedFirstPuzzle,
@@ -30,9 +35,15 @@ function levelAriaLabel(
 	return `Puzzle ${levelId}`;
 }
 
-function LevelBox({ level }: { level: LevelConfig }) {
+function LevelBox({ level, debug }: { level: LevelConfig; debug: boolean }) {
 	const completion = useLevelCompletion(level.id);
 	const className = levelBoxClass(completion);
+
+	function handleClick(event: MouseEvent<HTMLAnchorElement>) {
+		if (!debug || !event.shiftKey) return;
+		event.preventDefault();
+		setLevelCompletion(level.id, "clean");
+	}
 
 	return (
 		<li>
@@ -40,6 +51,8 @@ function LevelBox({ level }: { level: LevelConfig }) {
 				to={`/play/${level.id}`}
 				className={className}
 				aria-label={levelAriaLabel(level.id, completion)}
+				title={debug ? "Shift+click to mark complete (debug)" : undefined}
+				onClick={handleClick}
 			>
 				{level.id}
 			</Link>
@@ -49,9 +62,11 @@ function LevelBox({ level }: { level: LevelConfig }) {
 
 function LevelBoxRow({
 	levels,
+	debug,
 	center = false,
 }: {
 	levels: LevelConfig[];
+	debug: boolean;
 	center?: boolean;
 }) {
 	if (levels.length === 0) return null;
@@ -63,13 +78,14 @@ function LevelBoxRow({
 	return (
 		<ul className={rowClass}>
 			{levels.map((level) => (
-				<LevelBox key={level.id} level={level} />
+				<LevelBox key={level.id} level={level} debug={debug} />
 			))}
 		</ul>
 	);
 }
 
 export function Home() {
+	const debug = useDebugMode();
 	const hasFinishedFirst = useHasFinishedFirstPuzzle();
 	const maxUnlocked = useMaxUnlockedLevel();
 	const levels = getNumberedLevels();
@@ -92,9 +108,9 @@ export function Home() {
 			<p className="home-subtitle">Guess the hidden word in six tries.</p>
 			{hasFinishedFirst ? (
 				<div className="level-box-grid">
-					<LevelBoxRow levels={levelZero} center />
-					<LevelBoxRow levels={levelsOneToFive} />
-					<LevelBoxRow levels={levelsSixPlus} />
+					<LevelBoxRow levels={levelZero} debug={debug} center />
+					<LevelBoxRow levels={levelsOneToFive} debug={debug} />
+					<LevelBoxRow levels={levelsSixPlus} debug={debug} />
 				</div>
 			) : (
 				<Link to="/play" className="btn-primary">
