@@ -303,6 +303,7 @@ export function useWordleGame(level: LevelConfig) {
 		const isValid =
 			level.isGuessValid?.(guess, allowed) ??
 			(allowed.has(guess) ||
+				guess === answer ||
 				(level.conveyorBelt &&
 					baseAnswerRef.current !== "" &&
 					isRotatedFormOf(baseAnswerRef.current, guess)));

@@ -1,4 +1,4 @@
-import { createSeededRng, decodeSeed } from "./seed";
+import { decodeSeed, pickAnswerForSeed } from "./seed";
 import { WORD_LENGTH } from "./types";
 
 /** Matches on-screen symbol keyboard rows (see Keyboard.tsx). */
@@ -14,38 +14,82 @@ export const SYMBOL_CHARS = new Set(
 	SYMBOL_KEY_ROWS.flat().filter((key) => !KEYBOARD_MODE_KEYS.has(key)),
 );
 
-export function isSymbolOnlyString(value: string): boolean {
-	if (value.length === 0) return false;
-	for (const char of value) {
-		if (!SYMBOL_CHARS.has(char)) return false;
+/** Standard letter -> symbol substitutions for level 7. */
+export const LETTER_TO_SYMBOL: Record<string, string> = {
+	a: "@",
+	i: "!",
+	o: "0",
+	s: "$",
+};
+
+export const SYMBOL_TO_LETTER: Record<string, string> = {
+	"@": "a",
+	"!": "i",
+	"0": "o",
+	$: "s",
+};
+
+const SUBSTITUTION_SYMBOLS = new Set(Object.values(LETTER_TO_SYMBOL));
+
+export function encodeWord(word: string): string {
+	return word
+		.toLowerCase()
+		.split("")
+		.map((char) => LETTER_TO_SYMBOL[char] ?? char)
+		.join("");
+}
+
+export function decodeWord(encoded: string): string {
+	return encoded
+		.toLowerCase()
+		.split("")
+		.map((char) => SYMBOL_TO_LETTER[char] ?? char)
+		.join("");
+}
+
+/** Guess uses symbols for mapped letters and plain letters elsewhere. */
+export function isCanonicalLeetForm(encoded: string): boolean {
+	const lower = encoded.toLowerCase();
+	if (lower.length === 0) return false;
+	for (const char of lower) {
+		if (LETTER_TO_SYMBOL[char]) return false;
+		if (SUBSTITUTION_SYMBOLS.has(char)) continue;
+		if (char >= "a" && char <= "z") continue;
+		return false;
 	}
-	return true;
+	return encodeWord(decodeWord(lower)) === lower;
 }
 
 export function isAllowedSymbolKey(key: string): boolean {
 	return SYMBOL_CHARS.has(key);
 }
 
-/** Seeded random symbol string for level 7. */
-export function pickSymbolsForSeed(seed: number, length: number): string {
-	const pool = [...SYMBOL_CHARS];
-	const rng = createSeededRng(seed);
-	let out = "";
-	for (let i = 0; i < length; i++) {
-		const index = Math.floor(rng() * pool.length);
-		out += pool[index] ?? "0";
-	}
-	return out;
+export function isAllowedLeetKey(key: string): boolean {
+	if (/^[a-zA-Z]$/.test(key)) return true;
+	return SUBSTITUTION_SYMBOLS.has(key);
 }
 
-/** Resolve symbol answer for a four-digit seed code (level 7). */
+export function pickLeetAnswerForSeed(words: string[], seed: number): string {
+	return encodeWord(pickAnswerForSeed(words, seed));
+}
+
+/** Resolve leet-encoded answer for a four-digit seed code (level 7). */
 export function symbolsForEncodedSeed(
 	encoded: string,
+	words: string[],
 	length = WORD_LENGTH,
 ): string | null {
 	const trimmed = encoded.trim();
 	if (!trimmed) return null;
 	const seed = decodeSeed(trimmed);
 	if (seed === null) return null;
-	return pickSymbolsForSeed(seed, length);
+	const word = pickAnswerForSeed(words, seed);
+	if (word.length !== length) return null;
+	return encodeWord(word);
+}
+
+export function isLeetGuessValid(guess: string, allowed: Set<string>): boolean {
+	if (guess.length !== WORD_LENGTH) return false;
+	if (!isCanonicalLeetForm(guess)) return false;
+	return allowed.has(decodeWord(guess));
 }

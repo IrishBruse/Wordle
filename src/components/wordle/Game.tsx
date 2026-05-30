@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { markLevelWon, unlockLevel } from "#/game/progress";
 import { encodeSeed } from "#/game/seed";
-import { isAllowedSymbolKey } from "#/game/symbols";
+import { isAllowedLeetKey } from "#/game/symbols";
 import type { LevelConfig } from "#/game/types";
 import { useIsLevelUnlocked } from "#/game/useProgress";
 import { useWordleGame } from "#/game/useWordleGame";
@@ -110,14 +110,14 @@ export function Game({ level }: GameProps) {
 				handleKey("BACK");
 				return;
 			}
+			if (level.symbolsKeyboard && isAllowedLeetKey(key)) {
+				event.preventDefault();
+				handleKey(/^[a-zA-Z]$/.test(key) ? key.toUpperCase() : key);
+				return;
+			}
 			if (/^[a-zA-Z]$/.test(key)) {
 				event.preventDefault();
 				handleKey(key.toUpperCase());
-				return;
-			}
-			if (level.symbolsKeyboard && isAllowedSymbolKey(key)) {
-				event.preventDefault();
-				handleKey(key);
 			}
 		};
 		window.addEventListener("keydown", onKeyDown);
@@ -184,15 +184,15 @@ export function Game({ level }: GameProps) {
 					</div>
 				</div>
 			) : null}
+			<p className="game-seed" aria-live="polite">
+				Seed: {encodeSeed(seed)}
+			</p>
 			<Keyboard
 				keyStates={keyboardState}
 				onKey={handleKey}
 				disabled={disabled}
 				symbolsView={level.symbolsKeyboard}
 			/>
-			<p className="game-seed" aria-live="polite">
-				Seed: {encodeSeed(seed)}
-			</p>
 			<DevAnswerBanner answer={answer} />
 		</div>
 	);

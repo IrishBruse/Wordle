@@ -15,7 +15,7 @@ Design notes for the Wordle variant in this repo. Behavior described here matche
 | 0 | Classic | `/play` (tutorial) | Always available |
 | 1 | Double Agent | `/play/1` | After winning level 0 |
 
-- The home page (`/`) shows a **Play** button until the player wins the tutorial once. After that, it lists numbered puzzles (id 1 and up). Locked puzzles appear grayed out until unlocked.
+- The home page (`/`) shows a **Play** button until the player wins the tutorial once. After that, it lists unlocked puzzles only. Locked puzzles are hidden until unlocked.
 - Winning a level unlocks the next level id in `localStorage` (`wordle-max-unlocked-level`). There is no separate save of in-progress boards.
 - Level-specific rules and color semantics live with each level under `src/levels/{id}/design.md`.
 
@@ -46,3 +46,8 @@ Each level keeps its own run seed in `localStorage` (`wordle-seed-{levelId}`).
 - Daily puzzle / shared global word
 - Account sync or server-side progress
 - Levels beyond id 1 (config may add more; routes and home list follow `LEVELS` in code)
+# Seeds (levels 0-3, 6-7)
+
+Levels 0-3 and 6-7 pick the secret from the answer pool (or a seed-derived variant) using a four-digit seed shown at the bottom of the screen. The seed is rerolled when you open a level (including after reload or returning from Home). **New** after a win also rerolls; **Play again** after a loss keeps the same seed until you leave or reload.
+
+Levels 4 and 5 use fixed answers and ignore the seed for word selection.

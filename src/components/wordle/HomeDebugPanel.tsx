@@ -1,6 +1,6 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useIsLocalhost } from "#/game/dev";
-import { gibberishForEncodedSeed } from "#/game/gibberish";
+import { mutatedAnswerForEncodedSeed } from "#/game/mutated";
 import {
 	clearAllGameStorage,
 	clearCompletions,
@@ -39,10 +39,10 @@ function SeedLookup() {
 	const { answers, allowed } = useMemo(() => getWordLists(), []);
 	const lookup = useMemo(() => {
 		if (levelId === "6") {
-			return gibberishForEncodedSeed(seedCode, allowed);
+			return mutatedAnswerForEncodedSeed(seedCode, answers, allowed);
 		}
 		if (levelId === "7") {
-			return symbolsForEncodedSeed(seedCode);
+			return symbolsForEncodedSeed(seedCode, answers);
 		}
 		return answerForEncodedSeed(seedCode, answers);
 	}, [allowed, answers, levelId, seedCode]);
@@ -68,7 +68,7 @@ function SeedLookup() {
 				onChange={(event) => setLevelId(event.target.value)}
 			>
 				<option value="0">0-3 (word pool)</option>
-				<option value="6">6 (gibberish)</option>
+				<option value="6">6 (almost)</option>
 				<option value="7">7 (symbols)</option>
 			</select>
 			<label className="home-debug-label" htmlFor="home-debug-seed">

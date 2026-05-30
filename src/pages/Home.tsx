@@ -4,19 +4,22 @@ import type { LevelCompletionStatus } from "#/game/progress";
 import type { LevelConfig } from "#/game/types";
 import {
 	useHasFinishedFirstPuzzle,
-	useIsLevelUnlocked,
 	useLevelCompletion,
+	useMaxUnlockedLevel,
 } from "#/game/useProgress";
 import { getNumberedLevels } from "#/levels";
 
-function levelBoxClass(
-	unlocked: boolean,
-	completion: LevelCompletionStatus | null,
-): string {
+function levelBoxClass(completion: LevelCompletionStatus | null): string {
 	const classes = ["level-box"];
-	if (!unlocked) classes.push("level-box-locked");
 	if (completion === "clean") classes.push("level-box-complete");
 	return classes.join(" ");
+}
+
+function unlockedLevels(
+	levels: LevelConfig[],
+	maxUnlocked: number,
+): LevelConfig[] {
+	return levels.filter((level) => level.id === 0 || level.id <= maxUnlocked);
 }
 
 function levelAriaLabel(
@@ -28,46 +31,71 @@ function levelAriaLabel(
 }
 
 function LevelBox({ level }: { level: LevelConfig }) {
-	const unlocked = useIsLevelUnlocked(level.id);
 	const completion = useLevelCompletion(level.id);
-	const className = levelBoxClass(unlocked, completion);
-
-	if (unlocked) {
-		return (
-			<li>
-				<Link
-					to={`/play/${level.id}`}
-					className={className}
-					aria-label={levelAriaLabel(level.id, completion)}
-				>
-					{level.id}
-				</Link>
-			</li>
-		);
-	}
+	const className = levelBoxClass(completion);
 
 	return (
 		<li>
-			<span className={className} aria-hidden="true">
+			<Link
+				to={`/play/${level.id}`}
+				className={className}
+				aria-label={levelAriaLabel(level.id, completion)}
+			>
 				{level.id}
-			</span>
+			</Link>
 		</li>
+	);
+}
+
+function LevelBoxRow({
+	levels,
+	center = false,
+}: {
+	levels: LevelConfig[];
+	center?: boolean;
+}) {
+	if (levels.length === 0) return null;
+
+	const rowClass = center
+		? "level-box-row level-box-row-center"
+		: "level-box-row";
+
+	return (
+		<ul className={rowClass}>
+			{levels.map((level) => (
+				<LevelBox key={level.id} level={level} />
+			))}
+		</ul>
 	);
 }
 
 export function Home() {
 	const hasFinishedFirst = useHasFinishedFirstPuzzle();
+	const maxUnlocked = useMaxUnlockedLevel();
+	const levels = getNumberedLevels();
+	const levelZero = unlockedLevels(
+		levels.filter((level) => level.id === 0),
+		maxUnlocked,
+	);
+	const levelsOneToFive = unlockedLevels(
+		levels.filter((level) => level.id >= 1 && level.id <= 5),
+		maxUnlocked,
+	);
+	const levelsSixPlus = unlockedLevels(
+		levels.filter((level) => level.id >= 6),
+		maxUnlocked,
+	);
 
 	return (
 		<div className="home">
 			<h1 className="home-title">Wordle</h1>
 			<p className="home-subtitle">Guess the hidden word in six tries.</p>
 			{hasFinishedFirst ? (
-				<ul className="level-box-list">
-					{getNumberedLevels().map((level) => (
-						<LevelBox key={level.id} level={level} />
-					))}
-				</ul>
+				<div className="level-box-grid">
+					<LevelBoxRow levels={levelZero} center />
+					<LevelBoxRow levels={levelsOneToFive} />
+					<LevelBoxRow levels={levelsSixPlus} />
+				</div>
 			) : (
 				<Link to="/play" className="btn-primary">
 					Play
