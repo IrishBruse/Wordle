@@ -127,7 +127,7 @@ export function answerForEncodedSeed(
 
 /**
  * Use the level's next seed and advance storage (0001, 0002, ...).
- * Call when entering a level, on loss, or when starting a new run after a win.
+ * Call when entering a level or when starting a new run (New / Play again).
  */
 export function consumeLevelSeed(levelId: LevelId): number {
 	if (typeof window === "undefined") return SSR_FALLBACK_SEED;

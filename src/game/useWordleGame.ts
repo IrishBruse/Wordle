@@ -406,7 +406,6 @@ export function useWordleGame(level: LevelConfig) {
 			}
 			if (rowIndex + 1 >= level.maxGuesses) {
 				setStatus("lost");
-				setSeed(consumeLevelSeed(level.id));
 				showMessage({
 					type: "lost",
 					answer: hasHiddenInput
@@ -439,14 +438,11 @@ export function useWordleGame(level: LevelConfig) {
 
 	const restart = useCallback(() => {
 		if (answers.length === 0) return;
-		let gameSeed = seed;
-		if (status !== "lost") {
-			clearActiveLevelSeed(level.id);
-			gameSeed = consumeLevelSeed(level.id);
-			setSeed(gameSeed);
-		}
+		clearActiveLevelSeed(level.id);
+		const gameSeed = consumeLevelSeed(level.id);
+		setSeed(gameSeed);
 		initGame(answers, gameSeed);
-	}, [answers, initGame, level.id, seed, status]);
+	}, [answers, initGame, level.id]);
 
 	return {
 		board,
