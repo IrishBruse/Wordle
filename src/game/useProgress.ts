@@ -34,6 +34,6 @@ export function useIsLevelUnlocked(levelId: number): boolean {
 	return useSyncExternalStore(
 		subscribeProgress,
 		() => isLevelUnlocked(levelId),
-		() => levelId === 0,
+		() => levelId >= 0,
 	);
 }

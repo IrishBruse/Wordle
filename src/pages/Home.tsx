@@ -7,24 +7,13 @@ import {
 	setLevelCompletion,
 } from "#/game/progress";
 import type { LevelConfig } from "#/game/types";
-import {
-	useHasFinishedFirstPuzzle,
-	useLevelCompletion,
-	useMaxUnlockedLevel,
-} from "#/game/useProgress";
+import { useLevelCompletion } from "#/game/useProgress";
 import { getNumberedLevels } from "#/levels";
 
 function levelBoxClass(completion: LevelCompletionStatus | null): string {
 	const classes = ["level-box"];
 	if (completion === "clean") classes.push("level-box-complete");
 	return classes.join(" ");
-}
-
-function unlockedLevels(
-	levels: LevelConfig[],
-	maxUnlocked: number,
-): LevelConfig[] {
-	return levels.filter((level) => level.id === 0 || level.id <= maxUnlocked);
 }
 
 function levelAriaLabel(
@@ -86,37 +75,22 @@ function LevelBoxRow({
 
 export function Home() {
 	const debug = useDebugMode();
-	const hasFinishedFirst = useHasFinishedFirstPuzzle();
-	const maxUnlocked = useMaxUnlockedLevel();
 	const levels = getNumberedLevels();
-	const levelZero = unlockedLevels(
-		levels.filter((level) => level.id === 0),
-		maxUnlocked,
+	const levelZero = levels.filter((level) => level.id === 0);
+	const levelsOneToFive = levels.filter(
+		(level) => level.id >= 1 && level.id <= 5,
 	);
-	const levelsOneToFive = unlockedLevels(
-		levels.filter((level) => level.id >= 1 && level.id <= 5),
-		maxUnlocked,
-	);
-	const levelsSixPlus = unlockedLevels(
-		levels.filter((level) => level.id >= 6),
-		maxUnlocked,
-	);
+	const levelsSixPlus = levels.filter((level) => level.id >= 6);
 
 	return (
 		<div className="home">
 			<h1 className="home-title">Wordle</h1>
 			<p className="home-subtitle">Guess the hidden word in six tries.</p>
-			{hasFinishedFirst ? (
-				<div className="level-box-grid">
-					<LevelBoxRow levels={levelZero} debug={debug} center />
-					<LevelBoxRow levels={levelsOneToFive} debug={debug} />
-					<LevelBoxRow levels={levelsSixPlus} debug={debug} />
-				</div>
-			) : (
-				<Link to="/play" className="btn-primary">
-					Play
-				</Link>
-			)}
+			<div className="level-box-grid">
+				<LevelBoxRow levels={levelZero} debug={debug} center />
+				<LevelBoxRow levels={levelsOneToFive} debug={debug} />
+				<LevelBoxRow levels={levelsSixPlus} debug={debug} />
+			</div>
 			<HomeDebugPanel />
 		</div>
 	);

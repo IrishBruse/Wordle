@@ -44,17 +44,18 @@ describe("progress (browser)", () => {
 		vi.unstubAllGlobals();
 	});
 
-	it("unlocks only level 0 by default", () => {
+	it("unlocks all levels by default", () => {
 		expect(getMaxUnlockedLevel()).toBe(0);
 		expect(isLevelUnlocked(0)).toBe(true);
-		expect(isLevelUnlocked(1)).toBe(false);
+		expect(isLevelUnlocked(1)).toBe(true);
+		expect(isLevelUnlocked(8)).toBe(true);
 	});
 
 	it("unlockLevel raises the max unlocked id", () => {
 		unlockLevel(2);
 		expect(getMaxUnlockedLevel()).toBe(2);
 		expect(isLevelUnlocked(2)).toBe(true);
-		expect(isLevelUnlocked(3)).toBe(false);
+		expect(isLevelUnlocked(3)).toBe(true);
 	});
 
 	it("hasFinishedFirstPuzzle after tutorial unlock", () => {
@@ -68,10 +69,10 @@ describe("progress (browser)", () => {
 		expect(getLevelCompletion(0)).toBe("clean");
 	});
 
-	it("setLevelCompletion ignores completion on locked levels", () => {
+	it("setLevelCompletion records completion on any level", () => {
 		setMaxUnlockedLevel(1);
 		setLevelCompletion(2, "clean");
-		expect(getLevelCompletion(2)).toBeNull();
+		expect(getLevelCompletion(2)).toBe("clean");
 	});
 
 	it("setMaxUnlockedLevel prunes completion beyond unlock", () => {

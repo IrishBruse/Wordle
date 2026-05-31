@@ -83,17 +83,6 @@ describe("HomeDebugPanel", () => {
 		expect(getLevelCompletion(2)).toBe("clean");
 	});
 
-	it("does not complete locked levels from the debug grid", () => {
-		setMaxUnlockedLevel(1);
-		render(<HomeDebugPanel />);
-
-		const locked = screen.getByRole("button", { name: /level 2 locked/i });
-		expect((locked as HTMLButtonElement).disabled).toBe(true);
-		fireEvent.click(locked);
-
-		expect(getLevelCompletion(2)).toBeNull();
-	});
-
 	it("resets all debug data", () => {
 		localStorage.setItem("wordle-seed-1", "abcd");
 		setMaxUnlockedLevel(5);

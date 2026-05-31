@@ -20,8 +20,7 @@ export function getMaxUnlockedLevel(): number {
 }
 
 export function isLevelUnlocked(levelId: number): boolean {
-	if (levelId === 0) return true;
-	return levelId <= readMaxUnlocked();
+	return levelId >= 0;
 }
 
 export function hasFinishedFirstPuzzle(): boolean {
