@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { useDebugMode } from "#/game/dev";
 import { markLevelWon, unlockLevel } from "#/game/progress";
 import { encodeSeed } from "#/game/seed";
 import { isAllowedLeetKey } from "#/game/symbols";
 import type { LevelConfig } from "#/game/types";
-import { useIsLevelUnlocked, useLevelCompletion } from "#/game/useProgress";
+import { useIsLevelUnlocked } from "#/game/useProgress";
 import { useWordleGame } from "#/game/useWordleGame";
 import { getNextLevel } from "#/levels";
 import { Board } from "./Board";
@@ -39,7 +40,7 @@ export function Game({ level }: GameProps) {
 	const recordedWinRef = useRef(false);
 	const nextLevel = getNextLevel(level.id);
 	const nextLevelUnlocked = useIsLevelUnlocked(nextLevel?.id ?? -1);
-	const beaten = useLevelCompletion(level.id) === "clean";
+	const isDebug = useDebugMode();
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: reset hint when switching levels
 	useEffect(() => {
@@ -139,7 +140,7 @@ export function Game({ level }: GameProps) {
 				</button>
 			</header>
 			<div className="game-hint">
-				{beaten ? (
+				{isDebug ? (
 					<p className="game-description">{level.description}</p>
 				) : null}
 				<div className="game-hint-slot">
