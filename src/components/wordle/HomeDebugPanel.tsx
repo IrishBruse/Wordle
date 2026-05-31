@@ -15,12 +15,13 @@ import {
 import { answerForLevelEncodedSeed } from "#/game/seed";
 import { symbolsForEncodedSeed } from "#/game/symbols";
 import type { LevelId } from "#/game/types";
-import { useMaxUnlockedLevel } from "#/game/useProgress";
+import {
+	useIsLevelUnlocked,
+	useLevelCompletion,
+	useMaxUnlockedLevel,
+} from "#/game/useProgress";
 import { getWordLists } from "#/game/words";
 import { getNumberedLevels } from "#/levels";
-
-type UnlockPreset = "fresh" | "after-tutorial" | "unlock-all";
-type CompletionChoice = "open" | "complete";
 
 function DebugButton({
 	children,
@@ -64,10 +65,6 @@ function DebugMetric({ label, value }: { label: string; value: ReactNode }) {
 			<span className="home-debug-metric-value">{value}</span>
 		</div>
 	);
-}
-
-function DebugFormRow({ children }: { children: ReactNode }) {
-	return <div className="home-debug-form-row">{children}</div>;
 }
 
 type SeedLookupVariant = {
@@ -174,118 +171,110 @@ function SeedLookup() {
 	);
 }
 
-function UnlockPresetEditor({ maxLevelId }: { maxLevelId: number }) {
-	const [preset, setPreset] = useState<UnlockPreset>("fresh");
-
-	function applyPreset() {
-		if (preset === "fresh") {
-			setMaxUnlockedLevel(0);
-			return;
-		}
-		if (preset === "after-tutorial") {
-			debugFinishLevelZero();
-			return;
-		}
-		setMaxUnlockedLevel(maxLevelId);
-	}
+function LevelUnlockButton({ levelId }: { levelId: number }) {
+	const maxUnlocked = useMaxUnlockedLevel();
+	const isUnlocked = levelId === 0 || levelId <= maxUnlocked;
 
 	return (
-		<div className="home-debug-editor">
-			<DebugFormRow>
-				<div className="home-debug-field home-debug-field-grow">
-					<label
-						className="home-debug-label"
-						htmlFor="home-debug-unlock-preset"
-					>
-						Unlock preset
-					</label>
-					<select
-						id="home-debug-unlock-preset"
-						className="home-debug-input home-debug-select"
-						value={preset}
-						onChange={(event) => setPreset(event.target.value as UnlockPreset)}
-					>
-						<option value="fresh">Fresh start</option>
-						<option value="after-tutorial">After tutorial</option>
-						<option value="unlock-all">Unlock all</option>
-					</select>
-				</div>
-				<div className="home-debug-field home-debug-field-action">
-					<span
-						className="home-debug-label home-debug-label-spacer"
-						aria-hidden
-					>
-						Apply
-					</span>
-					<DebugButton onClick={applyPreset}>Apply preset</DebugButton>
-				</div>
-			</DebugFormRow>
+		<button
+			type="button"
+			className={
+				isUnlocked
+					? "home-debug-level-btn home-debug-level-btn-unlocked"
+					: "home-debug-level-btn"
+			}
+			aria-pressed={isUnlocked}
+			aria-label={`Unlock through level ${levelId}`}
+			onClick={() => setMaxUnlockedLevel(levelId)}
+		>
+			{levelId}
+		</button>
+	);
+}
+
+function UnlockControls({
+	maxLevelId,
+	levelIds,
+}: {
+	maxLevelId: number;
+	levelIds: number[];
+}) {
+	return (
+		<div className="home-debug-unlock">
+			<p className="home-debug-hint">Presets</p>
+			<div className="home-debug-actions">
+				<DebugButton onClick={() => setMaxUnlockedLevel(0)}>
+					Fresh start
+				</DebugButton>
+				<DebugButton onClick={() => debugFinishLevelZero()}>
+					After tutorial
+				</DebugButton>
+				<DebugButton onClick={() => setMaxUnlockedLevel(maxLevelId)}>
+					Unlock all
+				</DebugButton>
+			</div>
+			<p className="home-debug-hint">Unlock through level (tap to set)</p>
+			<div
+				className="home-debug-level-grid"
+				role="group"
+				aria-label="Unlock through level"
+			>
+				{levelIds.map((id) => (
+					<LevelUnlockButton key={id} levelId={id} />
+				))}
+			</div>
 		</div>
 	);
 }
 
-function CompletionEditor({ levelIds }: { levelIds: number[] }) {
-	const [levelId, setLevelId] = useState(String(levelIds[0] ?? 0));
-	const [status, setStatus] = useState<CompletionChoice>("complete");
+function LevelCompletionToggle({ levelId }: { levelId: number }) {
+	const unlocked = useIsLevelUnlocked(levelId);
+	const completion = useLevelCompletion(levelId);
+	const isComplete = completion !== null;
 
-	function applyCompletion() {
-		const id = Number.parseInt(levelId, 10);
-		if (!Number.isFinite(id)) return;
-		setLevelCompletion(id, status === "complete" ? "clean" : null);
+	if (!unlocked) {
+		return (
+			<button
+				type="button"
+				className="home-debug-level-btn home-debug-level-btn-disabled"
+				disabled
+				aria-label={`Level ${levelId} locked`}
+			>
+				{levelId}
+			</button>
+		);
 	}
 
 	return (
-		<div className="home-debug-editor">
-			<DebugFormRow>
-				<div className="home-debug-field">
-					<label
-						className="home-debug-label"
-						htmlFor="home-debug-completion-level"
-					>
-						Level
-					</label>
-					<select
-						id="home-debug-completion-level"
-						className="home-debug-input home-debug-select"
-						value={levelId}
-						onChange={(event) => setLevelId(event.target.value)}
-					>
-						{levelIds.map((id) => (
-							<option key={id} value={String(id)}>
-								Level {id}
-							</option>
-						))}
-					</select>
-				</div>
-				<div className="home-debug-field">
-					<label
-						className="home-debug-label"
-						htmlFor="home-debug-completion-status"
-					>
-						Status
-					</label>
-					<select
-						id="home-debug-completion-status"
-						className="home-debug-input home-debug-select"
-						value={status}
-						onChange={(event) =>
-							setStatus(event.target.value as CompletionChoice)
-						}
-					>
-						<option value="open">Open</option>
-						<option value="complete">Complete</option>
-					</select>
-				</div>
-				<div className="home-debug-field home-debug-field-action">
-					<span
-						className="home-debug-label home-debug-label-spacer"
-						aria-hidden
-					>
-						Apply
-					</span>
-					<DebugButton onClick={applyCompletion}>Apply completion</DebugButton>
-				</div>
-			</DebugFormRow>
+		<button
+			type="button"
+			className={
+				isComplete
+					? "home-debug-level-btn home-debug-level-btn-done"
+					: "home-debug-level-btn"
+			}
+			aria-pressed={isComplete}
+			aria-label={`Level ${levelId} ${isComplete ? "complete" : "open"}`}
+			onClick={() => setLevelCompletion(levelId, isComplete ? null : "clean")}
+		>
+			{levelId}
+		</button>
+	);
+}
+
+function LevelCompletionGrid({ levelIds }: { levelIds: number[] }) {
+	return (
+		<div>
+			<p className="home-debug-hint">Tap a level to toggle complete / open</p>
+			<div
+				className="home-debug-level-grid"
+				role="group"
+				aria-label="Level completion"
+			>
+				{levelIds.map((id) => (
+					<LevelCompletionToggle key={id} levelId={id} />
+				))}
+			</div>
 		</div>
 	);
 }
@@ -331,12 +320,12 @@ export function HomeDebugPanel() {
 				<SeedLookup />
 			</DebugSection>
 
-			<DebugSection title="Unlock preset">
-				<UnlockPresetEditor maxLevelId={maxLevelId} />
+			<DebugSection title="Unlock">
+				<UnlockControls maxLevelId={maxLevelId} levelIds={levelIds} />
 			</DebugSection>
 
 			<DebugSection title="Level completion">
-				<CompletionEditor levelIds={levelIds} />
+				<LevelCompletionGrid levelIds={levelIds} />
 			</DebugSection>
 
 			<DebugSection title="Reset">

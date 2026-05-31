@@ -49,14 +49,16 @@ describe("HomeDebugPanel", () => {
 			"7",
 			"8",
 		]);
-		expect(screen.getByLabelText(/unlock preset/i)).toBeDefined();
-		expect(screen.getByRole("button", { name: /apply preset/i })).toBeDefined();
+		expect(screen.getByRole("button", { name: /fresh start/i })).toBeDefined();
 		expect(
-			document.getElementById("home-debug-completion-level"),
-		).not.toBeNull();
-		expect(screen.getByLabelText(/^status$/i)).toBeDefined();
+			screen.getByRole("button", { name: /after tutorial/i }),
+		).toBeDefined();
+		expect(screen.getByRole("button", { name: /unlock all/i })).toBeDefined();
 		expect(
-			screen.getByRole("button", { name: /apply completion/i }),
+			screen.getByRole("group", { name: /unlock through level/i }),
+		).toBeDefined();
+		expect(
+			screen.getByRole("group", { name: /level completion/i }),
 		).toBeDefined();
 		expect(
 			screen.getByRole("button", { name: /reset all debug data/i }),
@@ -65,34 +67,31 @@ describe("HomeDebugPanel", () => {
 		expect(screen.queryByText(/clear progress/i)).toBeNull();
 	});
 
-	it("applies unlock preset when Apply preset is clicked", () => {
+	it("unlocks all levels when Unlock all is clicked", () => {
 		render(<HomeDebugPanel />);
 
-		fireEvent.change(screen.getByLabelText(/unlock preset/i), {
-			target: { value: "unlock-all" },
-		});
-		fireEvent.click(screen.getByRole("button", { name: /apply preset/i }));
+		fireEvent.click(screen.getByRole("button", { name: /unlock all/i }));
 
 		expect(getMaxUnlockedLevel()).toBeGreaterThanOrEqual(7);
 	});
 
-	it("applies level completion when Apply completion is clicked", () => {
+	it("toggles level completion when a level button is clicked", () => {
 		render(<HomeDebugPanel />);
 
-		const levelSelects = screen.getAllByLabelText(/^level$/i);
-		const completionLevel = levelSelects.find(
-			(select) => select.id === "home-debug-completion-level",
-		);
-		expect(completionLevel).toBeDefined();
-		fireEvent.change(completionLevel as HTMLSelectElement, {
-			target: { value: "2" },
-		});
-		fireEvent.change(screen.getByLabelText(/^status$/i), {
-			target: { value: "complete" },
-		});
-		fireEvent.click(screen.getByRole("button", { name: /apply completion/i }));
+		fireEvent.click(screen.getByRole("button", { name: /level 2 open/i }));
 
 		expect(getLevelCompletion(2)).toBe("clean");
+	});
+
+	it("does not complete locked levels from the debug grid", () => {
+		setMaxUnlockedLevel(1);
+		render(<HomeDebugPanel />);
+
+		const locked = screen.getByRole("button", { name: /level 2 locked/i });
+		expect((locked as HTMLButtonElement).disabled).toBe(true);
+		fireEvent.click(locked);
+
+		expect(getLevelCompletion(2)).toBeNull();
 	});
 
 	it("resets all debug data", () => {

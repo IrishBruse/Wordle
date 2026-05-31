@@ -87,6 +87,22 @@ export function debugFinishLevelZero(): void {
 	unlockLevel(1);
 }
 
+function pruneCompletionsBeyondUnlock(): void {
+	const maxUnlocked = readMaxUnlocked();
+	const completions = readCompletions();
+	let changed = false;
+	for (const key of Object.keys(completions)) {
+		const levelId = Number.parseInt(key, 10);
+		if (!Number.isFinite(levelId) || levelId === 0) continue;
+		if (levelId > maxUnlocked) {
+			delete completions[levelId];
+			changed = true;
+		}
+	}
+	if (!changed) return;
+	writeCompletions(completions);
+}
+
 export function setMaxUnlockedLevel(levelId: number): void {
 	if (typeof window === "undefined") return;
 	if (!Number.isFinite(levelId) || levelId < 0) return;
@@ -95,6 +111,7 @@ export function setMaxUnlockedLevel(levelId: number): void {
 	} else {
 		window.localStorage.setItem(STORAGE_KEY, String(levelId));
 	}
+	pruneCompletionsBeyondUnlock();
 	notifyProgress();
 }
 
@@ -103,6 +120,7 @@ export function setLevelCompletion(
 	status: LevelCompletionStatus | null,
 ): void {
 	if (typeof window === "undefined") return;
+	if (status !== null && !isLevelUnlocked(levelId)) return;
 	const completions = readCompletions();
 	if (status === null) {
 		delete completions[levelId];

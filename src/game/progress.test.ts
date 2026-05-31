@@ -6,6 +6,8 @@ import {
 	hasFinishedFirstPuzzle,
 	isLevelUnlocked,
 	markLevelWon,
+	setLevelCompletion,
+	setMaxUnlockedLevel,
 	unlockLevel,
 } from "./progress";
 
@@ -64,6 +66,22 @@ describe("progress (browser)", () => {
 	it("markLevelWon records completion", () => {
 		markLevelWon(0);
 		expect(getLevelCompletion(0)).toBe("clean");
+	});
+
+	it("setLevelCompletion ignores completion on locked levels", () => {
+		setMaxUnlockedLevel(1);
+		setLevelCompletion(2, "clean");
+		expect(getLevelCompletion(2)).toBeNull();
+	});
+
+	it("setMaxUnlockedLevel prunes completion beyond unlock", () => {
+		unlockLevel(3);
+		setLevelCompletion(2, "clean");
+		setLevelCompletion(3, "clean");
+		setMaxUnlockedLevel(1);
+		expect(getLevelCompletion(2)).toBeNull();
+		expect(getLevelCompletion(3)).toBeNull();
+		expect(getLevelCompletion(1)).toBeNull();
 	});
 });
 
