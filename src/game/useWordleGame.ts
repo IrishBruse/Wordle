@@ -14,7 +14,11 @@ import {
 	removeLettersFromGuess,
 	splitGuessForDisplay,
 } from "./hidden-input";
-import { consumeLevelSeed, SSR_FALLBACK_SEED } from "./seed";
+import {
+	clearActiveLevelSeed,
+	consumeLevelSeed,
+	SSR_FALLBACK_SEED,
+} from "./seed";
 import { rowRevealDurationMs } from "./timing";
 import type {
 	GameMessage,
@@ -435,8 +439,12 @@ export function useWordleGame(level: LevelConfig) {
 
 	const restart = useCallback(() => {
 		if (answers.length === 0) return;
-		const gameSeed = status === "lost" ? seed : consumeLevelSeed(level.id);
-		if (status !== "lost") setSeed(gameSeed);
+		let gameSeed = seed;
+		if (status !== "lost") {
+			clearActiveLevelSeed(level.id);
+			gameSeed = consumeLevelSeed(level.id);
+			setSeed(gameSeed);
+		}
 		initGame(answers, gameSeed);
 	}, [answers, initGame, level.id, seed, status]);
 

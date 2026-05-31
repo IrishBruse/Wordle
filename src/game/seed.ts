@@ -1,6 +1,7 @@
 import type { LevelId } from "./types";
 
 const STORAGE_PREFIX = "wordle-seed-";
+const ACTIVE_SEED_PREFIX = "wordle-active-seed-";
 
 /** First seed shown for a level (0001). */
 export const FIRST_LEVEL_SEED = 1;
@@ -33,6 +34,28 @@ function writeStoredSeed(levelId: LevelId, seed: number): void {
 
 function storageKey(levelId: LevelId): string {
 	return `${STORAGE_PREFIX}${levelId}`;
+}
+
+function activeSeedKey(levelId: LevelId): string {
+	return `${ACTIVE_SEED_PREFIX}${levelId}`;
+}
+
+/** Drop the in-flight seed for a level (e.g. after leaving play or before New). */
+export function clearActiveLevelSeed(levelId: LevelId): void {
+	if (typeof window === "undefined") return;
+	window.sessionStorage.removeItem(activeSeedKey(levelId));
+}
+
+/** Clear active seeds for every level after navigating away from play routes. */
+export function clearAllActiveLevelSeeds(): void {
+	if (typeof window === "undefined") return;
+	const { sessionStorage } = window;
+	for (let i = sessionStorage.length - 1; i >= 0; i--) {
+		const key = sessionStorage.key(i);
+		if (key?.startsWith(ACTIVE_SEED_PREFIX)) {
+			sessionStorage.removeItem(key);
+		}
+	}
 }
 
 function readStoredNextSeed(levelId: LevelId): number {
@@ -108,7 +131,15 @@ export function answerForEncodedSeed(
  */
 export function consumeLevelSeed(levelId: LevelId): number {
 	if (typeof window === "undefined") return SSR_FALLBACK_SEED;
+
+	const activeRaw = window.sessionStorage.getItem(activeSeedKey(levelId));
+	if (activeRaw !== null) {
+		const active = decodeSeed(activeRaw);
+		if (active !== null) return active;
+	}
+
 	const seed = readStoredNextSeed(levelId);
 	writeStoredSeed(levelId, normalizeSeed(seed + 1));
+	window.sessionStorage.setItem(activeSeedKey(levelId), encodeSeed(seed));
 	return seed;
 }

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	answerForEncodedSeed,
 	answerForLevelEncodedSeed,
+	clearActiveLevelSeed,
 	consumeLevelSeed,
 	createSeededRng,
 	decodeSeed,
@@ -13,8 +14,9 @@ import {
 import { getWordLists } from "./words";
 
 function mockBrowserStorage() {
-	const data = new Map<string, string>();
-	const storage = {
+	const local = new Map<string, string>();
+	const session = new Map<string, string>();
+	const makeStorage = (data: Map<string, string>) => ({
 		getItem: (key: string) => data.get(key) ?? null,
 		setItem: (key: string, value: string) => {
 			data.set(key, value);
@@ -23,13 +25,16 @@ function mockBrowserStorage() {
 			data.delete(key);
 		},
 		clear: () => data.clear(),
-		key: () => null,
-		length: 0,
-	};
-	vi.stubGlobal("window", {
-		localStorage: storage,
+		key: (index: number) => [...data.keys()][index] ?? null,
+		get length() {
+			return data.size;
+		},
 	});
-	return data;
+	vi.stubGlobal("window", {
+		localStorage: makeStorage(local),
+		sessionStorage: makeStorage(session),
+	});
+	return { local, session };
 }
 
 describe("encodeSeed", () => {
@@ -121,13 +126,23 @@ describe("consumeLevelSeed", () => {
 
 	it("starts at 0001 and increments on each consume", () => {
 		expect(consumeLevelSeed(0)).toBe(FIRST_LEVEL_SEED);
-		expect(encodeSeed(consumeLevelSeed(0))).toBe("0002");
-		expect(encodeSeed(consumeLevelSeed(0))).toBe("0003");
+		clearActiveLevelSeed(0);
+		expect(consumeLevelSeed(0)).toBe(2);
+		clearActiveLevelSeed(0);
+		expect(consumeLevelSeed(0)).toBe(3);
 	});
 
 	it("keeps a separate counter per level", () => {
 		expect(consumeLevelSeed(1)).toBe(FIRST_LEVEL_SEED);
 		expect(consumeLevelSeed(2)).toBe(FIRST_LEVEL_SEED);
+		clearActiveLevelSeed(1);
 		expect(encodeSeed(consumeLevelSeed(1))).toBe("0002");
+	});
+
+	it("reuses the active seed until it is cleared", () => {
+		expect(consumeLevelSeed(0)).toBe(FIRST_LEVEL_SEED);
+		expect(consumeLevelSeed(0)).toBe(FIRST_LEVEL_SEED);
+		clearActiveLevelSeed(0);
+		expect(consumeLevelSeed(0)).toBe(2);
 	});
 });
