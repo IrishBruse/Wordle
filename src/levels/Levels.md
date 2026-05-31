@@ -113,11 +113,30 @@ Layout matches Classic on the board (five tiles), but letters and guesses use sy
   - Scoring compares guesses to the encoded secret character for character.
   - Tap **123** on the keyboard to open the numbers and symbols layout; tap **ABC** to return to letters. Mapped symbols (`@`, `!`, `0`, `$`) can also be typed from the letter rows where those keys exist.
 
+Winning unlocks level 8 on the home screen.
+
+# Level 8: Off by One
+
+Layout matches Classic, with one extra green row at the top.
+
+- **Objective:** Guess the hidden five-letter word in six attempts or fewer.
+- **Word validity:** Each guess must be a valid five-letter word from the dictionary. The shifted form of the answer (each letter +1 in the alphabet, with Z wrapping to A) is also accepted even when it is not a dictionary word.
+- **Feedback (standard colors, wrong target):**
+  - **Green:** Letter is correct and in the exact position relative to the **shifted** answer (each letter of the real word moved forward one place in the alphabet).
+  - **Yellow:** Letter is in the shifted word but in a different position.
+  - **Gray:** Letter is not in the shifted word.
+  - Partial greens and yellows never reflect the real answer directly; only the shifted string.
+- **The Off by One Mechanic:**
+  - The top row shows a real dictionary word in all green. That word is **not** the answer, but it hints at what to solve.
+  - Scoring (yellow and per-letter green) uses the alphabet-shifted version of that word (e.g. `waver` -> `xbwfs`).
+  - Submitting the full shifted word turns the row all green (same as a solve row) but does **not** win the puzzle.
+  - You win only when you submit the real unshifted word on a guess row (e.g. `waver`). That is the only way the true answer appears as a full green guess you typed.
+
 This is the final numbered level.
 
-# Seeds (levels 0-3, 6-7)
+# Seeds (levels 0-3, 6-8)
 
-Levels 0-3, 6, and 7 pick the secret from the answer pool (or a seed-derived variant) using a four-digit seed shown at the bottom of the screen. The seed starts at `0001` and increments when you open a level (including after reload or returning from Home), lose, or press **New** after a win. **Play again** after a loss keeps the same seed until you leave or reload.
+Levels 0-3, 6, 7, and 8 pick the secret from the answer pool (or a seed-derived variant) using a four-digit seed shown at the bottom of the screen. The seed starts at `0001` and increments when you open a level (including after reload or returning from Home), lose, or press **New** after a win. **Play again** after a loss keeps the same seed until you leave or reload.
 
 Levels 4 and 5 use fixed answers and ignore the seed for word selection.
 

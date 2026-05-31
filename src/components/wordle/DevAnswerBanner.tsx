@@ -1,9 +1,11 @@
 import { useMemo } from "react";
+import { formatCipherAnswers, shiftWordForward } from "#/game/cipher-shift";
 import { useDebugMode } from "#/game/dev";
 import {
 	formatMutationChange,
 	pickMutatedAnswerDetailsForSeed,
 } from "#/game/mutated";
+import { pickAnswerForLevel } from "#/game/seed";
 import { getWordLists } from "#/game/words";
 
 type DevAnswerBannerProps = {
@@ -25,6 +27,13 @@ export function DevAnswerBanner({
 			const details = pickMutatedAnswerDetailsForSeed(answers, seed, allowed);
 			if (details.answer !== answer) return null;
 			return formatMutationChange(details);
+		}
+		if (levelId === 8) {
+			const { answers } = getWordLists();
+			const win = pickAnswerForLevel(answers, seed, 8);
+			const scoring = shiftWordForward(win);
+			if (answer.toLowerCase() !== win) return null;
+			return formatCipherAnswers(win, scoring);
 		}
 		return `Answer: ${answer.toUpperCase()}`;
 	}, [answer, levelId, seed]);

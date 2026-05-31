@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { applyBlindDisplay } from "./blind-feedback";
 import { applyBlueHerring, pickDecoyColumn } from "./blue-herring";
+import { cipherWinWordForScoringAnswer } from "./cipher-shift";
 import {
 	isRotatedFormOf,
 	rotateWordLeft,
@@ -66,6 +67,7 @@ export function useWordleGame(level: LevelConfig) {
 	const guessLength = level.guessLength ?? level.wordLength;
 	const backspaceStep = level.backspaceStep ?? 1;
 	const hasHiddenInput = guessLength > displayLength;
+	const hintRowCount = level.cipherShift ? 1 : 0;
 
 	const [allowed] = useState(() => getWordLists().allowed);
 	const [answers] = useState(() => getWordLists().answers);
@@ -77,7 +79,7 @@ export function useWordleGame(level: LevelConfig) {
 	baseAnswerRef.current = baseAnswer;
 	const [seed, setSeed] = useState(SSR_FALLBACK_SEED);
 	const [board, setBoard] = useState<TileData[][]>(() =>
-		createBoard(level.maxGuesses, displayLength),
+		createBoard(level.maxGuesses + hintRowCount, displayLength),
 	);
 	const [currentRow, setCurrentRow] = useState(0);
 	const [status, setStatus] = useState<GameStatus>("playing");
@@ -92,10 +94,25 @@ export function useWordleGame(level: LevelConfig) {
 	const initGame = useCallback(
 		(pool: string[], gameSeed: number) => {
 			const secret = level.pickAnswer(pool, gameSeed);
+			const winWord = level.cipherShift
+				? cipherWinWordForScoringAnswer(secret)
+				: secret;
 			setAnswer(secret);
-			setBaseAnswer(secret);
-			setBoard(createBoard(level.maxGuesses, displayLength));
-			setCurrentRow(0);
+			setBaseAnswer(winWord);
+			const nextBoard = createBoard(
+				level.maxGuesses + hintRowCount,
+				displayLength,
+			);
+			if (level.cipherShift) {
+				for (let i = 0; i < displayLength; i++) {
+					nextBoard[0][i] = {
+						letter: winWord[i]?.toUpperCase() ?? "",
+						state: "correct",
+					};
+				}
+			}
+			setBoard(nextBoard);
+			setCurrentRow(hintRowCount);
 			setStatus("playing");
 			setMessage({ type: "none" });
 			setRevealingRow(null);
@@ -103,7 +120,7 @@ export function useWordleGame(level: LevelConfig) {
 			setOverflow("");
 			setSubmittedGuesses([]);
 		},
-		[displayLength, level],
+		[displayLength, hintRowCount, level],
 	);
 
 	useEffect(() => {
@@ -137,7 +154,7 @@ export function useWordleGame(level: LevelConfig) {
 					tile.letter !== "" && tile.state !== "empty" && tile.state !== "tbd",
 			);
 
-		for (let row = 0; row < currentRow; row++) {
+		for (let row = hintRowCount; row < currentRow; row++) {
 			const guess = guessForRow(board[row], submittedGuesses[row]);
 			if (
 				!isCompleteGuess(
@@ -183,6 +200,7 @@ export function useWordleGame(level: LevelConfig) {
 		revealingRow,
 		submittedGuesses,
 		hasHiddenInput,
+		hintRowCount,
 	]);
 
 	const showMessage = useCallback((next: GameMessage) => {
@@ -304,6 +322,7 @@ export function useWordleGame(level: LevelConfig) {
 			level.isGuessValid?.(guess, allowed) ??
 			(allowed.has(guess) ||
 				guess === answer ||
+				(level.cipherShift && guess === baseAnswerRef.current) ||
 				(level.conveyorBelt &&
 					baseAnswerRef.current !== "" &&
 					isRotatedFormOf(baseAnswerRef.current, guess)));
@@ -333,10 +352,13 @@ export function useWordleGame(level: LevelConfig) {
 				? applyBlueHerring(trueScores, guess, column, herringLetter, rowIndex)
 				: trueScores;
 
-		const wonOnSubmit = level.conveyorBelt
-			? guess === baseAnswerRef.current
-			: guess === answerRef.current;
-		if (wonOnSubmit) {
+		const wonOnSubmit =
+			level.conveyorBelt || level.cipherShift
+				? guess === baseAnswerRef.current
+				: guess === answerRef.current;
+		const allGreenOnSubmit =
+			wonOnSubmit || (level.cipherShift && guess === answerRef.current);
+		if (allGreenOnSubmit) {
 			displayScores = Array.from(
 				{ length: displayLength },
 				(): LetterState => "correct",
@@ -385,7 +407,7 @@ export function useWordleGame(level: LevelConfig) {
 					type: "lost",
 					answer: hasHiddenInput
 						? answerRef.current.slice(0, displayLength)
-						: level.conveyorBelt
+						: level.conveyorBelt || level.cipherShift
 							? baseAnswerRef.current
 							: answerRef.current,
 				});
@@ -431,6 +453,6 @@ export function useWordleGame(level: LevelConfig) {
 		clearGuess,
 		submitGuess,
 		restart,
-		answer: level.conveyorBelt ? baseAnswer : answer,
+		answer: level.conveyorBelt || level.cipherShift ? baseAnswer : answer,
 	};
 }

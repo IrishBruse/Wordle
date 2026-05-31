@@ -1,4 +1,5 @@
 import { type ReactNode, useMemo, useState } from "react";
+import { formatCipherAnswers, shiftWordForward } from "#/game/cipher-shift";
 import { useDebugMode } from "#/game/dev";
 import {
 	formatMutationChange,
@@ -74,7 +75,7 @@ type SeedLookupVariant = {
 	value: string;
 };
 
-const SEED_LOOKUP_LEVELS: LevelId[] = [0, 1, 2, 3, 6, 7];
+const SEED_LOOKUP_LEVELS: LevelId[] = [0, 1, 2, 3, 6, 7, 8];
 
 function seedLookupVariantForLevel(
 	levelId: LevelId,
@@ -104,6 +105,17 @@ function seedLookupVariantForLevel(
 		return {
 			label: "7",
 			value: symbols === null ? "Invalid seed" : symbols,
+		};
+	}
+
+	if (levelId === 8) {
+		const word = answerForLevelEncodedSeed(trimmed, answers, 8);
+		if (word === null) {
+			return { label: "8", value: "Invalid seed" };
+		}
+		return {
+			label: "8",
+			value: formatCipherAnswers(word, shiftWordForward(word)),
 		};
 	}
 

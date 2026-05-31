@@ -43,8 +43,14 @@ export function scoreGuessForLevel(
 	const hasHiddenInput = guessLength > displayLength;
 	const winTarget = options?.winAgainst ?? answer;
 	const won = guess === winTarget;
+	const shiftedCipherGreen =
+		level.cipherShift && guess === answer && guess !== winTarget;
 
-	if (won && hasHiddenInput) {
+	if (
+		shiftedCipherGreen ||
+		(won && hasHiddenInput) ||
+		(won && level.cipherShift)
+	) {
 		scores = Array.from({ length: displayLength }, () => "correct" as const);
 	} else if (level.blindFeedback) {
 		scores = applyBlindDisplay(scores, won);
@@ -74,7 +80,7 @@ export function simulatePlaythrough(
 			i,
 			decoyColumn,
 			decoyLetter,
-			{ ...options, winAgainst: initialAnswer },
+			{ ...options, winAgainst: options?.winAgainst ?? initialAnswer },
 		);
 		rows.push(result.scores);
 		decoyColumn = result.decoyColumn;
@@ -82,7 +88,8 @@ export function simulatePlaythrough(
 
 		if (!level.conveyorBelt) continue;
 
-		const won = guess === initialAnswer;
+		const winTarget = options?.winAgainst ?? initialAnswer;
+		const won = guess === winTarget;
 		if (won || !shouldAdvanceConveyor(result.scores)) continue;
 
 		target = rotateWordLeft(target);

@@ -47,6 +47,7 @@ describe("HomeDebugPanel", () => {
 			"3",
 			"6",
 			"7",
+			"8",
 		]);
 		expect(screen.getByLabelText(/unlock preset/i)).toBeDefined();
 		expect(screen.getByRole("button", { name: /apply preset/i })).toBeDefined();

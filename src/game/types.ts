@@ -45,6 +45,8 @@ export type LevelConfig = {
 	blindFeedback?: boolean;
 	/** Show 123 / ABC toggle with numbers and punctuation keys. */
 	symbolsKeyboard?: boolean;
+	/** Scoring uses a +1 shifted answer; a green hint row shows the real word; win on the unshifted word. */
+	cipherShift?: boolean;
 };
 
 export type GameMessage =
